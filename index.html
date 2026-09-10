@@ -755,6 +755,17 @@ body{
 
       <div class="sec-title"><span class="st-em"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4"/><rect height="4" width="8" x="8" y="13"/></svg></span><h3 data-i18n="backup">数据管理</h3></div>
       <div class="menu-card">
+        <div class="menu-item" onclick="exportBackup()">
+          <div class="mi-ico" style="background:var(--sky-t); color:var(--sky)"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block"><path d="M12 4v11"/><path d="M8 11l4 4 4-4"/><path d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/></svg></div>
+          <div class="mi-txt"><div class="mi-t" data-i18n="export_title">导出备份</div><div class="mi-s" data-i18n="export_sub">保存为文件，换手机时搬过去</div></div>
+          <div class="mi-arrow">›</div>
+        </div>
+        <div class="menu-item" onclick="pickImportFile()">
+          <div class="mi-ico" style="background:var(--sage-t); color:var(--sage)"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block"><path d="M12 20V9"/><path d="M8 13l4-4 4 4"/><path d="M5 8V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"/></svg></div>
+          <div class="mi-txt"><div class="mi-t" data-i18n="import_title">导入备份</div><div class="mi-s" data-i18n="import_sub">从备份文件恢复数据</div></div>
+          <div class="mi-arrow">›</div>
+        </div>
+        <input type="file" id="importFile" accept=".json,application/json,text/plain" style="display:none" onchange="onImportFile(this)">
         <div class="menu-item" onclick="clearSample()">
           <div class="mi-ico" style="background:var(--gold-t); color:var(--gold)"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block"><path d="M16 4l-6.5 6.5"/><path d="M9 10l5 5"/><path d="M7 13l4 4-5.5 3L4 18z"/></svg></div>
           <div class="mi-txt"><div class="mi-t" data-i18n="clear_title">清空示例</div><div class="mi-s" id="clearSub">清掉示例数据，开始记录自己的</div></div>
@@ -2962,6 +2973,53 @@ function icsRepeat(rep){
   if(rep==='weekday')return 'RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR';
   if(rep==='weekend')return 'RRULE:FREQ=WEEKLY;BYDAY=SA,SU';
   return 'RRULE:FREQ=DAILY';
+}
+function exportBackup(){
+  try{
+    var payload={__app:'habit-checkin',__ver:1,__at:new Date().toISOString(),data:data};
+    var blob=new Blob([JSON.stringify(payload)],{type:'application/json;charset=utf-8'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=(T('export_filename')||'habit-backup_')+todayStr()+'.json';
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){try{URL.revokeObjectURL(a.href);if(a.parentNode)a.parentNode.removeChild(a);}catch(e){}},400);
+    toast(T('t_exported'),'backup');
+  }catch(err){ alert('导出失败：'+(err&&err.message)); }
+}
+function pickImportFile(){
+  var el=document.getElementById('importFile');
+  if(el){ el.value=''; el.click(); }
+}
+function onImportFile(inp){
+  var f=inp.files&&inp.files[0];
+  if(!f){return;}
+  var done=function(){ try{inp.value='';}catch(e){} };
+  var r=new FileReader();
+  r.onerror=function(){ toast(T('t_import_bad'),'backup'); done(); };
+  r.onload=function(){
+    try{
+      var o=JSON.parse(String(r.result));
+      var d=(o&&o.data&&typeof o.data==='object')?o.data:o;
+      if(!d||typeof d!=='object') throw new Error('bad');
+      if(!d.days&&!d.habits&&!d.settings) throw new Error('bad');
+      if(!confirm(T('confirm_import'))){ done(); return; }
+      if(!d.meta)d.meta={};
+      if(!d.meta.notifiedStreak)d.meta.notifiedStreak={};
+      if(!d.days)d.days={};
+      if(!d.habits||!d.habits.length)d.habits=DEFAULT_HABITS.slice();
+      if(!d.profile)d.profile={name:'Leah',avatar:'☕'};
+      if(!d.settings)d.settings={remind:true,sound:true};
+      if(!d.settings.theme)d.settings.theme={bg:'mist',accent:'dust',dots:true};
+      localStorage.setItem(LS_KEY,JSON.stringify(d));
+      data=load();
+      syncHabits();
+      renderAll();
+      try{applyTheme();}catch(e){}
+      toast(T('t_import_ok'),'backup');
+    }catch(err){ toast(T('t_import_bad'),'backup'); }
+    done();
+  };
+  r.readAsText(f);
 }
 function exportICS(){
   var list=reminds().filter(function(r){return r.on;});
