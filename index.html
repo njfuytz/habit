@@ -2622,16 +2622,24 @@ function renderSyncBadge(){
    ================================================================= */
 
 /* ---------- AI 配置读写（存本机，不外传） ---------- */
-var AI_DEF={baseUrl:'https://api.deepseek.com',model:'deepseek-chat',key:'',persona:''};
+var AI_SYS_DIAG='你是一个温和但直接的私人习惯教练。用户会给你一段打卡数据。请用中文输出一段诊断，要求：'+
+  '1）先肯定做得好的地方（具体到习惯名和数字）；2）指出最明显的短板（具体、不要空泛）；'+
+  '3）给一条今天就能做的具体建议；4）控制在150字以内，口语化，不要用markdown符号，不要用emoji，不要分点编号，就写成自然的一段话。';
+var AI_SYS_CHAT='你是用户的私人习惯助手，说话温和、直接、简短（一般不超过200字），用中文口语回答，不要用markdown符号，不要emoji。'+
+  '你可以看到他全部的习惯打卡数据。回答时尽量引用具体数字，给的建议要具体可执行。'+
+  '如果用户问的跟习惯无关，也可以正常回答，但尽量联系到他的习惯上来。';
+var AI_DEF={baseUrl:'https://api.deepseek.com',model:'deepseek-chat',key:'',persona:'',sysDiag:'',sysChat:''};
 function aiCfg(){
   var c={};
   try{
     var st=S(); if(st.ai&&typeof st.ai==='object')c=st.ai;
   }catch(e){c={};}
-  return {baseUrl:c.baseUrl||AI_DEF.baseUrl,model:c.model||AI_DEF.model,key:c.key||'',persona:c.persona||''};
+  return {baseUrl:c.baseUrl||AI_DEF.baseUrl,model:c.model||AI_DEF.model,key:c.key||'',persona:c.persona||'',
+          sysDiag:c.sysDiag||'',sysChat:c.sysChat||''};
 }
 function saveAiCfg(o){
-  S().ai={baseUrl:o.baseUrl,model:o.model,key:o.key,persona:o.persona};
+  S().ai={baseUrl:o.baseUrl,model:o.model,key:o.key,persona:o.persona,
+          sysDiag:o.sysDiag||'',sysChat:o.sysChat||''};
   try{localStorage.setItem(LS_KEY,JSON.stringify(data))}catch(e){}
 }
 function aiReady(){var c=aiCfg();return !!(c.key&&c.baseUrl&&c.model);}
@@ -2708,9 +2716,7 @@ function runDiagnose(){
   var dot=document.getElementById('aiDiagDot'), btn=document.getElementById('aiDiagBtn'), body=document.getElementById('aiDiagBody');
   dot.className='ai-dot busy';btn.disabled=true;btn.textContent='分析中';
   body.className='ai-diag-body dim';body.textContent='正在看你的数据…';
-  var sys='你是一个温和但直接的私人习惯教练。用户会给你一段打卡数据。请用中文输出一段诊断，要求：'+
-    '1）先肯定做得好的地方（具体到习惯名和数字）；2）指出最明显的短板（具体、不要空泛）；'+
-    '3）给一条今天就能做的具体建议；4）控制在150字以内，口语化，不要用markdown符号，不要用emoji，不要分点编号，就写成自然的一段话。'+
+  var sys=(c.sysDiag&&c.sysDiag.trim()?c.sysDiag.trim():AI_SYS_DIAG)+
     (c.persona?('另外遵守用户的额外设定：'+c.persona):'');
   aiChat([{role:'user',content:'这是我的打卡数据：\n'+buildDataContext()}],sys,function(err,txt){
     aiDiagRunning=false;btn.disabled=false;btn.textContent='重新生成';
@@ -2760,10 +2766,9 @@ function sendChat(){
   var btn=document.getElementById('chatSend');
   btn.disabled=true;btn.textContent='…';
   var thinking=pushMsg('sys','它正在想…');
-  var sys='你是用户的私人习惯助手，说话温和、直接、简短（一般不超过200字），用中文口语回答，不要用markdown符号，不要emoji。'+
-    '你可以看到他全部的习惯打卡数据。回答时尽量引用具体数字，给的建议要具体可执行。'+
-    '如果用户问的跟习惯无关，也可以正常回答，但尽量联系到他的习惯上来。'+
-    (aiCfg().persona?('额外设定：'+aiCfg().persona):'')+
+  var cc=aiCfg();
+  var sys=(cc.sysChat&&cc.sysChat.trim()?cc.sysChat.trim():AI_SYS_CHAT)+
+    (cc.persona?('额外设定：'+cc.persona):'')+
     '\n\n【用户当前数据】\n'+buildDataContext();
   aiChat(chatHistory.slice(-10),sys,function(err,txt){
     btn.disabled=false;btn.textContent='发送';
@@ -2797,11 +2802,24 @@ function openAiCfg(){
   '<div class="field"><label>接口地址（Base URL）</label><input id="cfgUrl" type="text" placeholder="https://api.deepseek.com" value="'+escAttr(c.baseUrl)+'"></div>'+
   '<div class="field"><label>模型名</label><input id="cfgModel" type="text" placeholder="deepseek-chat" value="'+escAttr(c.model)+'"></div>'+
   '<div class="field"><label>API Key</label><input id="cfgKey" type="password" placeholder="sk-..." value="'+escAttr(c.key)+'"></div>'+
-  '<div class="field"><label>额外人设（可选）</label><input id="cfgPersona" type="text" placeholder="如：说话毒舌一点 / 多鼓励我" value="'+escAttr(c.persona)+'"></div>'+
+  '<div class="field"><label>额外人设（可选）</label><input id="cfgPersona" type="text" placeholder="如：说话毒舌一点 / 多鼓励我" value="'+escAttr(c.persona)+'">'+
+    '<div class="sub" style="font-size:11.5px;color:var(--ink-mute);margin-top:6px;line-height:1.6">只是追加在提示词末尾，会被内置要求冲淡。想改内置说法，用下面两个框。</div></div>'+
+  '<div class="field"><label>诊断提示词（AI 每日分析用）</label><textarea id="cfgSysDiag" style="width:100%;min-height:150px;box-sizing:border-box;border-radius:var(--rs);border:var(--bw) solid var(--bc);background:var(--cream-soft);color:var(--ink);padding:10px 11px;font-size:12.5px;line-height:1.65;font-family:inherit;resize:vertical">'+escAttr(c.sysDiag||AI_SYS_DIAG)+'</textarea>'+
+    '<div class="repeat-chips" style="margin-top:8px"><div class="rc" onclick="resetSysPrompt(\'diag\')">恢复默认</div></div></div>'+
+  '<div class="field"><label>聊天提示词（AI 助手用）</label><textarea id="cfgSysChat" style="width:100%;min-height:150px;box-sizing:border-box;border-radius:var(--rs);border:var(--bw) solid var(--bc);background:var(--cream-soft);color:var(--ink);padding:10px 11px;font-size:12.5px;line-height:1.65;font-family:inherit;resize:vertical">'+escAttr(c.sysChat||AI_SYS_CHAT)+'</textarea>'+
+    '<div class="repeat-chips" style="margin-top:8px"><div class="rc" onclick="resetSysPrompt(\'chat\')">恢复默认</div></div>'+
+    '<div class="sub" style="font-size:11.5px;color:var(--ink-mute);margin-top:6px;line-height:1.6">框里就是当前生效的原文，改几个字就行，不用整段重写。打卡数据会自动附在后面，不用你写。</div></div>'+
   '<button class="export-ics-btn" style="margin-top:6px" onclick="saveAiCfgFromForm()">保存</button>'+
   '<button class="export-ics-btn" style="margin-top:10px;background:var(--tile);color:var(--ink-soft);border:1px solid var(--tile-3)" onclick="testAi()">测试连接</button>'+
   '<div id="aiTestOut" style="font-size:12.5px;color:var(--ink-soft);margin-top:10px;line-height:1.7;text-align:center"></div>';
   openGenericSheet(html);
+}
+function __normSys(v,def){var s=(v==null?'':String(v)).trim();return (s===String(def).trim())?'':s;}
+function resetSysPrompt(kind){
+  var el=document.getElementById(kind==='diag'?'cfgSysDiag':'cfgSysChat');
+  if(!el)return;
+  el.value=(kind==='diag'?AI_SYS_DIAG:AI_SYS_CHAT);
+  toast('已恢复默认原文','good');
 }
 function escAttr(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function pickPreset(i){
@@ -2813,7 +2831,9 @@ function saveAiCfgFromForm(){
   var o={baseUrl:(document.getElementById('cfgUrl').value||'').trim(),
          model:(document.getElementById('cfgModel').value||'').trim(),
          key:(document.getElementById('cfgKey').value||'').trim(),
-         persona:(document.getElementById('cfgPersona').value||'').trim()};
+         persona:(document.getElementById('cfgPersona').value||'').trim(),
+         sysDiag:__normSys(document.getElementById('cfgSysDiag').value,AI_SYS_DIAG),
+         sysChat:__normSys(document.getElementById('cfgSysChat').value,AI_SYS_CHAT)};
   if(!o.baseUrl||!o.model){alert('接口地址和模型名都要填');return;}
   saveAiCfg(o);
   toast('AI 配置已保存','good');
@@ -2824,7 +2844,7 @@ function testAi(){
   var o={baseUrl:(document.getElementById('cfgUrl').value||'').trim(),
          model:(document.getElementById('cfgModel').value||'').trim(),
          key:(document.getElementById('cfgKey').value||'').trim(),
-         persona:''};
+         persona:'',sysDiag:'',sysChat:''};
   var out=document.getElementById('aiTestOut');
   out.textContent='测试中…';
   saveAiCfg(o);
