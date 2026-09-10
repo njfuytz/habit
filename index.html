@@ -16,15 +16,15 @@
    数据 key 沿用 wb_workspace_habit_v1，兼容历史数据
    （CSS 变量：背景/方块/文字语义色随主题明暗自适配，此处不再列举，详见样式表）
 -->
-<html lang="zh-CN" data-page-node-id="0TH7hnBt88OnygE6PeiaAQ">
-<head data-page-node-id="QLo41kOc6XdQDqI9cQcB9q">
+<html lang="zh-CN" data-page-node-id="npo7DikhhuDNVSqxxd1pSt">
+<head data-page-node-id="ewHKY6iHQeKizysEhTttGT">
 
-<meta charset="UTF-8" data-page-node-id="ob8dU8lD2IaAo9a6Vzke9G">
-<meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport" data-page-node-id="vqrqqvIbFYT6ndqF6enr0y">
-<meta content="yes" name="apple-mobile-web-app-capable" data-page-node-id="1AH8hUde3kot3HpZJBksuj">
-<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style" data-page-node-id="ShipeZvn3WDjflhqucW3l3">
-<meta content="习惯打卡" name="apple-mobile-web-app-title" data-page-node-id="xZHYePdyPHodLnYOSIwvdC">
-<meta content="#3B2E28" name="theme-color" data-page-node-id="mtNPFfMkSWK9hjGpfowLus">
+<meta charset="UTF-8" data-page-node-id="Z4aEFGRFPNLnkCwYhG7OSq">
+<meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport" data-page-node-id="sBIkogvMBk8t3hI60PcjlD">
+<meta content="yes" name="apple-mobile-web-app-capable" data-page-node-id="reYy6L5lV59dF9WRQ3g8BY">
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style" data-page-node-id="FTmGKRfPhO1Fq2UJOGJnCx">
+<meta content="习惯打卡" name="apple-mobile-web-app-title" data-page-node-id="7zbSwQVBMVbGkFKJmHV7jp">
+<meta content="#3B2E28" name="theme-color" data-page-node-id="UdFOnLh7YzWgmWoLVRt8Bp">
 <title>习惯打卡台</title>
 <style>
 :root{
@@ -73,8 +73,12 @@
   --line:rgba(59,46,40,.08);
   --shadow:0 6px 22px rgba(30,20,15,.14);
   --shadow-s:0 3px 12px rgba(30,20,15,.10);
-  --shadow-card:0 4px 18px rgba(40,28,20,.10);
   --r:20px; --rs:15px; --rxs:11px;
+  /* —— 界面风格变量（由 applyStyle 动态切换） —— */
+  --bw:0px;                  /* 卡片描边宽度 */
+  --bc:transparent;          /* 卡片描边色 */
+  --shadow-card:0 4px 18px rgba(40,28,20,.10);
+  --gap-card:12px;           /* 卡片间距 */
   --dot-size:16px 16px;
   --safe-b:env(safe-area-inset-bottom,0px);
   --safe-t:env(safe-area-inset-top,0px);
@@ -163,6 +167,7 @@ body{
 /* ============ 奶油卡片 ============ */
 .card{
   background:var(--cream);border-radius:var(--r);padding:18px;box-shadow:var(--shadow-card);
+  border:var(--bw) solid var(--bc);
   position:relative;overflow:hidden;
   background-image:radial-gradient(var(--dot-cream) 1.3px, transparent 1.7px);
   background-size:15px 15px;background-position:0 0;
@@ -206,7 +211,7 @@ body{
 
 /* ============ 打卡卡 ============ */
 .hcard{
-  background:var(--cream);border-radius:var(--r);padding:15px 16px;margin-bottom:12px;box-shadow:var(--shadow-card);
+  background:var(--cream);border-radius:var(--r);padding:15px 16px;margin-bottom:var(--gap-card);box-shadow:var(--shadow-card);border:var(--bw) solid var(--bc);
   transition:.25s;position:relative;overflow:hidden;
   background-image:radial-gradient(var(--dot-cream) 1.3px, transparent 1.7px);background-size:15px 15px;
 }
@@ -298,7 +303,7 @@ body{
 
 /* ============ 习惯页 ============ */
 .habit-card{
-  background:var(--cream);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--shadow-card);
+  background:var(--cream);border-radius:var(--r);padding:16px;margin-bottom:var(--gap-card);box-shadow:var(--shadow-card);border:var(--bw) solid var(--bc);
   background-image:radial-gradient(var(--dot-cream) 1.3px, transparent 1.7px);background-size:15px 15px;
 }
 .habit-top{display:flex;align-items:center;gap:12px;}
@@ -326,7 +331,7 @@ body{
 
 /* ============ 统计页 ============ */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.stat-mini{background:var(--cream);border-radius:var(--rs);padding:15px;box-shadow:var(--shadow-card);
+.stat-mini{background:var(--cream);border-radius:var(--rs);padding:15px;box-shadow:var(--shadow-card);border:var(--bw) solid var(--bc);
   background-image:radial-gradient(var(--dot-cream) 1.2px, transparent 1.6px);background-size:14px 14px;}
 .stat-mini .sm-ico{display:flex;align-items:center;}
 .stat-mini.a .sm-ico{color:var(--accent-d);}
@@ -360,7 +365,7 @@ body{
 /* 徽章 */
 .badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
 .badge{
-  background:var(--cream);border-radius:var(--rs);padding:14px 8px;text-align:center;box-shadow:var(--shadow-card);
+  background:var(--cream);border-radius:var(--rs);padding:14px 8px;text-align:center;box-shadow:var(--shadow-card);border:var(--bw) solid var(--bc);
   position:relative;transition:.2s;
 }
 .badge.locked{filter:grayscale(1);opacity:.42;}
@@ -382,7 +387,7 @@ body{
 .p-stat b{font-size:22px;font-weight:800;display:block;color:var(--on-grad);}
 .p-stat span{font-size:11px;color:var(--on-grad-2);}
 
-.menu-card{background:var(--cream);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-card);}
+.menu-card{background:var(--cream);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-card);border:var(--bw) solid var(--bc);}
 .menu-item{display:flex;align-items:center;gap:13px;padding:15px 16px;cursor:pointer;border-bottom:1px solid var(--line);transition:.15s;}
 .menu-item:last-child{border-bottom:none;}
 .menu-item:active{background:var(--tile);}
@@ -571,172 +576,180 @@ body{
 .repeat-chips{display:flex;gap:7px;flex-wrap:wrap}
 .repeat-chips .rc{padding:7px 13px;border-radius:999px;border:1px solid var(--tile-3);background:var(--tile-2);font-size:12.5px;color:var(--ink-soft);cursor:pointer}
 .repeat-chips .rc.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+/* —— 风格选择器 —— */
+.style-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;}
+.style-sw{background:#fff;border:2px solid var(--line);border-radius:13px;padding:9px 6px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:.15s;}
+.style-sw.sel{border-color:var(--accent-d);background:var(--accent-t);}
+.style-sw .ss-thumb{width:46px;height:34px;display:block;}
+.style-sw .ss-thumb svg{width:100%;height:100%;display:block;}
+.style-sw .ss-name{font-size:12px;font-weight:800;color:var(--ink);}
 </style>
 </head>
-<body data-page-node-id="bkAfoh3KnDEaSiIBm8HAUd">
-<div id="app" data-page-node-id="pFFrbjUeyntukdox3PbhP9">
+<body data-page-node-id="ArgWoibNYXsHnEcj2X6xIP">
+<div id="app" data-page-node-id="PIM8OEIR1FPFBYaWCY6ML3">
 
   <!-- 顶栏 -->
-  <div class="topbar" data-page-node-id="vVYRGfuo82TINM6F3PETID">
-    <div class="tb-ava" id="tbAva" onclick="go('mine')" data-page-node-id="1chX3MiNUk3GX28Pd0arps">☕</div>
-    <div class="tb-txt" data-page-node-id="DcDAVHJ5aqtsM1KCLEyAMt">
-      <div class="tb-hi" id="tbHi" data-page-node-id="Tz9zYi75VCsrsMAb7PxUVn">早安</div>
-      <div class="tb-name" id="tbName" data-page-node-id="OIOEV6FxFG4i7cQnJn1E72">今天也要加油鸭</div>
-      <div class="tb-date" id="tbDate" data-page-node-id="JYu73tPald1qdvfrzsVk4O"></div>
+  <div class="topbar" data-page-node-id="EsCvC9RVW2jUtZKUtxhLxn">
+    <div class="tb-ava" id="tbAva" onclick="go('mine')" data-page-node-id="em2gwu12wqMvghhNjmy6KK">☕</div>
+    <div class="tb-txt" data-page-node-id="DCiwAZbkFwgkjeUM1JWgZ4">
+      <div class="tb-hi" id="tbHi" data-page-node-id="cM9ByEDGRfRBS0BvIWY0jL">早安</div>
+      <div class="tb-name" id="tbName" data-page-node-id="hlfU8GNL0wTk7DfI2EAhOf">今天也要加油鸭</div>
+      <div class="tb-date" id="tbDate" data-page-node-id="Jr50cGEB0ylZCns45qJIId"></div>
     </div>
-    <div class="tb-flame" data-page-node-id="09PT3adwHVUlrNHdtMLoZo"><div data-page-node-id="Cknq74f0TZn6mKeaTFTFwU"><span id="tbStreak" data-page-node-id="oDreYoKIaPojUdHhZeqPh8">0</span> <span data-i18n="unit_day" data-page-node-id="MXrDhNj3P84eByc3EogjPm">天</span><small data-i18n="best_streak" data-page-node-id="6ECjlApqFaCyMGIEMRzBdy">最长连续</small></div></div>
+    <div class="tb-flame" data-page-node-id="uIam2o3HhZumdy84DOMtdJ"><div data-page-node-id="y5JPmcxY1lS26j50GsCTOe"><span id="tbStreak" data-page-node-id="2lIGVEJXiKuTsozYJCKusj">0</span> <span data-i18n="unit_day" data-page-node-id="o0AYknQJT4HnRKhtBmNr19">天</span><small data-i18n="best_streak" data-page-node-id="vy5Zf4sIKDPJWh4r2GHiYJ">最长连续</small></div></div>
   </div>
 
-  <div class="scroll" id="scroll" data-page-node-id="MxWCTfHxQTVOdvuFEw1iQN">
+  <div class="scroll" id="scroll" data-page-node-id="6vN063AuIykW9TMqCi6ObV">
 
     <!-- ========== 今日 ========== -->
-    <div class="page active" id="page-today" data-page-node-id="SCL7CBBfBDo6YdNriclmTi">
+    <div class="page active" id="page-today" data-page-node-id="PbWDRerSXOvK1FQBjyCpFT">
       <!-- 进度环 -->
-      <div class="ring-card" data-page-node-id="cKlD46CRJ4nLnbTOmfSCOT">
-        <div class="deco1" data-page-node-id="zEPwCvrN1gDGCC5vkTFM3e"></div>
-        <div class="ring-wrap" id="ringWrap" data-page-node-id="ZigjnJX4vVLxFCc0RzRyVv"></div>
-        <div class="ring-info" data-page-node-id="io9yDsvahat34fTOQzdP1E">
-          <div class="ri-t" id="ringTitle" data-page-node-id="2q8od2Ko99AUbMadAbV4uE">今日进度</div>
-          <div class="ri-s" id="ringSub" data-page-node-id="b9CBpE1tRBwSSgVa6axAmX"></div>
-          <div class="ri-tags" id="ringTags" data-page-node-id="45moDHb5uKPP7eipdcncDU"></div>
+      <div class="ring-card" data-page-node-id="dXEx9A6J6KZ7jVBx6yuG4o">
+        <div class="deco1" data-page-node-id="PIfykGq1OHicGqGZh5Bpmk"></div>
+        <div class="ring-wrap" id="ringWrap" data-page-node-id="B9LUYPGPdDR03b2KnPvzK5"></div>
+        <div class="ring-info" data-page-node-id="dP98mXwVUgm3xeGBeaGjb5">
+          <div class="ri-t" id="ringTitle" data-page-node-id="z3fFEtq3Pp3ebIQvKOTmi3">今日进度</div>
+          <div class="ri-s" id="ringSub" data-page-node-id="HODWCT7Y2o3oLGSaYwCbmG"></div>
+          <div class="ri-tags" id="ringTags" data-page-node-id="vWLAborIkI5aqhHMpFwRDD"></div>
         </div>
       </div>
 
       <!-- 今天还差什么 -->
-      <div class="sec-title" data-page-node-id="AePIuRtgw2ErBBtdBZCVHg"><span class="st-em" data-icn="pin" data-page-node-id="CJstWKrhek4lhtipZ8WC2y"></span><h3 data-i18n="todo_title" data-page-node-id="zJ15SI4J302gzGjjw1klXy">今天还差什么</h3></div>
-      <div class="todo-strip" data-page-node-id="RYREwubP89uzjUUxB91oAZ">
-        <div class="todo-chips" id="todoChips" data-page-node-id="u6OhQ5bE97ti5LCsHwoGPQ"></div>
+      <div class="sec-title" data-page-node-id="7nBx5okR8ggbFGEncyenx0"><span class="st-em" data-icn="pin" data-page-node-id="hskCsy1SHECf6UEr0lgBz2"></span><h3 data-i18n="todo_title" data-page-node-id="jpg4xppDQ5vScXb4uiRg1B">今天还差什么</h3></div>
+      <div class="todo-strip" data-page-node-id="ulrrf431x3unANquD8ovgE">
+        <div class="todo-chips" id="todoChips" data-page-node-id="zWFXT9p6R8RhnJtSmSsSo1"></div>
       </div>
 
       <!-- 打卡列表 -->
-      <div class="sec-title" data-page-node-id="vlcuKnyfy2QcZUQmIJMMgh"><span class="st-em" data-page-node-id="22hXA1z81NOcpHzkDHKmct"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="tW4qG31I9rlDDZr204XeUR"><path d="M20 6.5 9.2 17.3 4 12.1" data-page-node-id="FQpE8GoxpF5jRGh1zqqRzF"/></svg></span><h3 data-i18n="today_checkin" data-page-node-id="mydk4F5DX4HTjiKfcRCzUb">今日打卡</h3></div>
-      <div id="checkinList" data-page-node-id="wPoT8wEZkfQv3ZpO9ukTAE"></div>
+      <div class="sec-title" data-page-node-id="LeY2gLMRaBtVubqUPdoE0b"><span class="st-em" data-page-node-id="R56u2renUfBs3eeRnQoocj"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="1LCzz0n0Y2BtNEwqoEgBIE"><path d="M20 6.5 9.2 17.3 4 12.1" data-page-node-id="2BnMWCn4zYsrYwLJ59mbP9"/></svg></span><h3 data-i18n="today_checkin" data-page-node-id="R5g3wUs8wohyPUe9oUs0tx">今日打卡</h3></div>
+      <div id="checkinList" data-page-node-id="Gub0Yb5zmSh5SaXyBuaH9a"></div>
 
       <!-- 心情随记 -->
-      <div class="sec-title" data-page-node-id="8Rm5kKivffT1tOyN2RXOVC"><span class="st-em" data-page-node-id="ah0X3mfwko1PAuwRQKWlKC"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="UN7K5cpuoE4V6vaYNZpDef"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-3.9-4-6.4-9-6.4z" data-page-node-id="PtE2oU56AC29tIMJ6PE9hS"/><circle cx="7.5" cy="11.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="bLeaCXdS12nwDgLQDtg2JV"/><circle cx="12" cy="8" fill="currentColor" r="1.1" stroke="none" data-page-node-id="OMd2hfFep9HrNbkwOAGLa2"/><circle cx="16.5" cy="11.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="TeD6CZEbtHXWV0LF29MIt4"/></svg></span><h3 data-i18n="today_mood" data-page-node-id="39dr5ip6qbCuXIjLDQYCSS">今日心情</h3></div>
-      <div class="card" data-page-node-id="3AMPl8GaljGiE8n719YrKQ">
-        <div class="mood-row" id="moodRow" data-page-node-id="JakG3LefC3EGEb1oYXTjD0"></div>
+      <div class="sec-title" data-page-node-id="8y9SHjPs3aPiJdGGwmGWtj"><span class="st-em" data-page-node-id="NIKejgGGnyRtDrgnKPozjl"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="sS3hMBqhuvpIRRDd4czs2q"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-3.9-4-6.4-9-6.4z" data-page-node-id="NfB3XuoH7QxXdrTo8iw2km"/><circle cx="7.5" cy="11.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="ITYnLy4RFA7LcJfOKysvay"/><circle cx="12" cy="8" fill="currentColor" r="1.1" stroke="none" data-page-node-id="BeV8D2Mcwj7rFECEKERjFX"/><circle cx="16.5" cy="11.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="aBgHzCD5ILxTOIf7CxyXuW"/></svg></span><h3 data-i18n="today_mood" data-page-node-id="qh7hZFKbQn2T2MTz89EFKu">今日心情</h3></div>
+      <div class="card" data-page-node-id="1MnAaD8MjsJCEDpKiW9jjX">
+        <div class="mood-row" id="moodRow" data-page-node-id="g9nkISrZQU3DfgJH0AJ7E2"></div>
       </div>
     </div>
 
     <!-- ========== 我的习惯 ========== -->
-    <div class="page" id="page-habit" data-page-node-id="AoUsEcaIMvIozE354zbNvp">
-      <div class="sec-title" data-page-node-id="xHmMN9QxmzWCzEgirreCkq"><span class="st-em" data-page-node-id="h49np2XIqSFeTJrfsRZAYX"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="qPEdt2TugdLNFzAwBGw70e"><path d="M12 20v-8" data-page-node-id="mPxq8dRmWfZFJItdKycwrA"/><path d="M12 12c0-3-2.2-5.2-5.5-5.2C6 10 8.2 12 12 12z" data-page-node-id="A9DCiUqysKWmcUzFEOobrq"/><path d="M12 13c0-3.4 2.4-5.8 6-5.8-.2 3.8-2.6 5.8-6 5.8z" data-page-node-id="Syz0ZDrhXeztfkGzjnerDh"/></svg></span><h3 data-i18n="my_habits" data-page-node-id="lmE848siSfSXK8IjnuB9T4">我的习惯</h3><button class="st-add" onclick="openAdd()" data-page-node-id="nb67UO6N9fnDQ2JzAzq3Fj"><span class="plus" data-page-node-id="G0PiitnRcqXEzY0v7yOS4F">＋</span> <span data-i18n="add" data-page-node-id="fXuD9iuaj2TALOpo45vsE0">添加</span></button></div>
-      <div id="habitList" data-page-node-id="IfCC8rrf5GGb1cFd9FcPQA"></div>
-      <button class="add-habit-btn" onclick="openAdd()" data-page-node-id="HtaDvd4KkKu4cZ1OarNJnB"><span style="font-size:20px" data-page-node-id="Defvl6xHZB7LeWBASJ4pVm">＋</span> <span data-i18n="add_new_habit" data-page-node-id="G4ZoohUmj0jJXoqG6ViBKR">添加新习惯</span></button>
+    <div class="page" id="page-habit" data-page-node-id="OR6tyL12IfQvJLvKD5oh1e">
+      <div class="sec-title" data-page-node-id="iO5FPWyskSRN0Pl58GBAEd"><span class="st-em" data-page-node-id="D5c5CnfDQRx0zLl8D2FfG1"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="ZCEK74bdDf3MlBBrpJXJqT"><path d="M12 20v-8" data-page-node-id="u5M4SLvsW5R8Ie41j1YkSx"/><path d="M12 12c0-3-2.2-5.2-5.5-5.2C6 10 8.2 12 12 12z" data-page-node-id="Ny4qGctdmBxsYWBqSLfWkq"/><path d="M12 13c0-3.4 2.4-5.8 6-5.8-.2 3.8-2.6 5.8-6 5.8z" data-page-node-id="6hTgZm6KGh9tC3sGgS7ojV"/></svg></span><h3 data-i18n="my_habits" data-page-node-id="iWiNMQSgZ6xsvPdGfz37Z0">我的习惯</h3><button class="st-add" onclick="openAdd()" data-page-node-id="WXX2Xqqk8LCVfvNFsKbZtm"><span class="plus" data-page-node-id="7eakXDDj7mxrKGIkRIP4xV">＋</span> <span data-i18n="add" data-page-node-id="wBkkuDdCkYoAIDe6HiqDvl">添加</span></button></div>
+      <div id="habitList" data-page-node-id="c4tqkZiGjCZ5dxCI3kExKC"></div>
+      <button class="add-habit-btn" onclick="openAdd()" data-page-node-id="TjXNq9eQ8GG3qjHgr7kAt5"><span style="font-size:20px" data-page-node-id="2yhulEevCutpl8oZC3Ro08">＋</span> <span data-i18n="add_new_habit" data-page-node-id="iDv0Jb98fDP6TsaRfQFpMg">添加新习惯</span></button>
     </div>
 
     <!-- ========== 数据统计 ========== -->
-    <div class="page" id="page-stat" data-page-node-id="fygNrK564m07l8nSwJYxa2">
-      <div class="sec-title" data-page-node-id="8vGvu73jYQr2irNDXGEp7X"><span class="st-em" data-page-node-id="vnpQrTrZZpqoZ5wXf4lR3r"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="BvPNTxPdNt671viIPv8UA7"><path d="M4 20h16" data-page-node-id="zy24BXQX5P3yDwgG5H2hmb"/><rect height="6" rx="1" width="3" x="6" y="11" data-page-node-id="renQrmvCT7zWM51Ckp6NRk"/><rect height="10" rx="1" width="3" x="11" y="7" data-page-node-id="rFkq6QkIvXccxfBCiBC4MG"/><rect height="4" rx="1" width="3" x="16" y="13" data-page-node-id="vcH0tCWMQKi59e51rO137L"/></svg></span><h3 data-i18n="stat_overview" data-page-node-id="dYo4LzBCXvbikIfunYbaGQ">数据概览</h3></div>
-      <div class="stat-grid" id="statGrid" data-page-node-id="0kwO0IS6imfDNBxSUgUQ0y"></div>
+    <div class="page" id="page-stat" data-page-node-id="qzQNEAqbcLOF38RE9JLePL">
+      <div class="sec-title" data-page-node-id="w3wiu7rSc5wwjvwREYWWCr"><span class="st-em" data-page-node-id="Jmi6BNbXD3Db9DjBiXA5qi"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="w9MPv6GZIVg0wvoauvPbIW"><path d="M4 20h16" data-page-node-id="JH6u5wuIY6FZ8EE3VXdio1"/><rect height="6" rx="1" width="3" x="6" y="11" data-page-node-id="umGlwpqCRBgyBtA4H9asND"/><rect height="10" rx="1" width="3" x="11" y="7" data-page-node-id="rprMTX2P5gFy2rBFG8Fc3G"/><rect height="4" rx="1" width="3" x="16" y="13" data-page-node-id="CtxDWRB4avKNCk6UmGiUjU"/></svg></span><h3 data-i18n="stat_overview" data-page-node-id="P4LO10LiepsLE7TKfMSFGu">数据概览</h3></div>
+      <div class="stat-grid" id="statGrid" data-page-node-id="xJxO9vXkV3vSvi8JI2q0FM"></div>
 
-      <div class="sec-title" data-page-node-id="k47uXSmkmGnhyEZIg1d8Eu"><span class="st-em" data-page-node-id="g43IHZg4v5ezeH1rRM0gEF"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="i20m6KHRgNdGJbS4Jxln3W"><path d="M12 3c.5 3-1.8 4.2-2.8 5.8C8 10.6 8 12 8 12.6a4 4 0 1 0 8 0c0-2.2-1.4-3.4-1.4-5C13.3 6.2 13.6 4.4 12 3z" data-page-node-id="1ZIjAgSYidB94Ff51jRNam"/></svg></span><h3 data-i18n="heat_title" data-page-node-id="kCHuUbhfPwvpxbdp2kRQo2">30 天热力图</h3><span class="st-more" data-i18n="heat_more" data-page-node-id="I6hwHqYKbvjCUkU7fDcx8q">左右滑动 →</span></div>
-      <div class="card" data-page-node-id="zt0wrAeUaAwpj8R6iuLZuC">
-        <div class="heat-scroll" data-page-node-id="IY10I1CPQfT3Zx6j86TonF"><div class="heat-wrap" id="heatWrap" data-page-node-id="nrQRSeWmb37DTNtnGsU9AP"></div></div>
+      <div class="sec-title" data-page-node-id="HfvVqqhGnR7PZSEFMH1ZcI"><span class="st-em" data-page-node-id="FbJppmsSrNqkP0qbWCuvWH"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="Ls9QRcotayd7wGNhEY64qZ"><path d="M12 3c.5 3-1.8 4.2-2.8 5.8C8 10.6 8 12 8 12.6a4 4 0 1 0 8 0c0-2.2-1.4-3.4-1.4-5C13.3 6.2 13.6 4.4 12 3z" data-page-node-id="WIU20P2wqgZVichfcfnLHq"/></svg></span><h3 data-i18n="heat_title" data-page-node-id="r6NhXlrb3cTEHN07tCxc69">30 天热力图</h3><span class="st-more" data-i18n="heat_more" data-page-node-id="t6I92pKFj5NnUpQilNj3xX">左右滑动 →</span></div>
+      <div class="card" data-page-node-id="bq4nMWIZHs7ft8i1JUKD58">
+        <div class="heat-scroll" data-page-node-id="FpxGCZCWlYmoWOQiITeObK"><div class="heat-wrap" id="heatWrap" data-page-node-id="Cg1I3LPrVG9Z7b2ChjHkzL"></div></div>
       </div>
 
-      <div class="sec-title" data-page-node-id="xfgVBqwAT5MBEZFMJ6uNXs"><span class="st-em" data-page-node-id="V9kpsXi06TyqlBjJBIKk5B"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="78ilIaIHggGCKJbUO7hsee"><path d="M3 17l5-5 3.5 3.5L20 7" data-page-node-id="dxUcoayzEJTQfp1wqyYTGi"/><path d="M15 7h5v5" data-page-node-id="8HdaB9YmLGwjVgP80IRu9w"/></svg></span><h3 data-i18n="week_title" data-page-node-id="1T01TbwzbIkkBzrwsGQ0qY">本周完成情况</h3></div>
-      <div class="card" data-page-node-id="UhhniaCLx29HiLZv18yGeV"><div id="weekChart" data-page-node-id="i82MHaGt6Nz2yhbYuqXjye"></div></div>
+      <div class="sec-title" data-page-node-id="RTFPQS98qiygOCqOJGsPQq"><span class="st-em" data-page-node-id="pQtQBJPWHAk7CEqhg3MzCt"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="IbVDwwXbCTiKWpVWIR6UXP"><path d="M3 17l5-5 3.5 3.5L20 7" data-page-node-id="gRr0ndiGnYmDux5EAieu3z"/><path d="M15 7h5v5" data-page-node-id="glYztS5f3f4v64ydiykkbG"/></svg></span><h3 data-i18n="week_title" data-page-node-id="0helEG3qCNGVbqNqGKNW5u">本周完成情况</h3></div>
+      <div class="card" data-page-node-id="gnvWpEdwRLlGYdSGqt9jBB"><div id="weekChart" data-page-node-id="Lu3KmQg3W8ckQehWFpNgEf"></div></div>
 
-      <div class="sec-title" data-page-node-id="JknJiLaQfkjoFQIBQqFHEh"><span class="st-em" data-page-node-id="hv1ZWEPcDOgf6r1pyrc0Fr"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="r4KOwyaPn5n3YwrLvdmhZA"><path d="M8 15a4.5 4.5 0 1 1 3.3-7.6A4 4 0 0 1 18 10a3.5 3.5 0 0 1-.5 7H8z" data-page-node-id="0Kq1XoFF2AUCSFN7TiqdNT"/><circle cx="6" cy="19" r="1.3" data-page-node-id="iQ8TtVs15lsAsFKJZ31fy6"/></svg></span><h3 data-i18n="mood_title" data-page-node-id="JEtrkFFrF3a0hmxGCn65dh">本月心情曲线</h3></div>
-      <div class="card" data-page-node-id="1vdxWHqhOehHZlCcijMxHH"><div id="moodChart" data-page-node-id="jPkUCaH5LEZ5i8zz9heeB3"></div></div>
+      <div class="sec-title" data-page-node-id="V7nozz8IYkO8fXjSRYYl8c"><span class="st-em" data-page-node-id="ELBbGgYiTdaFHvlh09ii9A"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="m5HCdxOdiQQmu6FuWnh6cm"><path d="M8 15a4.5 4.5 0 1 1 3.3-7.6A4 4 0 0 1 18 10a3.5 3.5 0 0 1-.5 7H8z" data-page-node-id="wGXTRbKBw4a0HEt4NORW1p"/><circle cx="6" cy="19" r="1.3" data-page-node-id="nfqVl16f1O2txnBQB3kMC9"/></svg></span><h3 data-i18n="mood_title" data-page-node-id="0q81cmNTERCSqLwEoC2BSK">本月心情曲线</h3></div>
+      <div class="card" data-page-node-id="NB9OnRNATFozeLCnXHNTry"><div id="moodChart" data-page-node-id="9IRE1yOI0hC90XO4KTHOBE"></div></div>
 
-      <div class="sec-title" data-page-node-id="65aNXefdBuzAPNzwXljX2F"><span class="st-em" data-page-node-id="AFBpYmXq0jQXjMUJZRuMI0"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="dvFEhMJ9RB51sAyWWL8HCS"><path d="M7 4h10v3a5 5 0 0 1-10 0z" data-page-node-id="rJ2A2RTaTvr6hPUoFOzBGL"/><path d="M7 5H4.5a2.5 2.5 0 0 0 3 2.4" data-page-node-id="efho3nRcFqwLMY6txE1mAV"/><path d="M17 5h2.5a2.5 2.5 0 0 1-3 2.4" data-page-node-id="YihlphZYqWDJZtkRQCuRXG"/><path d="M12 12v3" data-page-node-id="Jk2Bo1eKlbbzrKk5FtIN4e"/><path d="M9 19h6" data-page-node-id="RQcAophPDmi7dHpAniFHzb"/><path d="M10 15h4l.5 4h-5z" data-page-node-id="SRU35qTwdp5y2rqUSFWS66"/></svg></span><h3 data-i18n="badge_title" data-page-node-id="GgarKbb9LCDU0SJ3CGWp5I">成就徽章</h3></div>
-      <div class="badge-grid" id="badgeGrid" data-page-node-id="muQfdQGdxdrGV20QKMDvGF"></div>
+      <div class="sec-title" data-page-node-id="tT10IcJ1nki87qvF0JYCXj"><span class="st-em" data-page-node-id="ELGjM9gQ6hyYWQ7yiNd3f5"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="E9FF7AapiMc3hniBgD9Pvl"><path d="M7 4h10v3a5 5 0 0 1-10 0z" data-page-node-id="kIYRvTPE0tm0gS91tSc0rh"/><path d="M7 5H4.5a2.5 2.5 0 0 0 3 2.4" data-page-node-id="sB8HePwhPUrzzGCKEwhERN"/><path d="M17 5h2.5a2.5 2.5 0 0 1-3 2.4" data-page-node-id="VssSJfv865QaMswlQTKAUf"/><path d="M12 12v3" data-page-node-id="nnhODU1bAFDGxbk9aQqyfi"/><path d="M9 19h6" data-page-node-id="sIA8mGD0SHi9RiC5t60zE2"/><path d="M10 15h4l.5 4h-5z" data-page-node-id="v3sL4EHh6CgvKYH6J0Z4DG"/></svg></span><h3 data-i18n="badge_title" data-page-node-id="Dyw11Q0tD4HxfvstKwHsfc">成就徽章</h3></div>
+      <div class="badge-grid" id="badgeGrid" data-page-node-id="he3WR02Yw7ihMf0XS6wTqa"></div>
     </div>
 
     <!-- ========== 我的 ========== -->
-    <div class="page" id="page-ai" data-page-node-id="Fg3uI1WufZno9umehOSddK">
-      <div class="sec-title" data-page-node-id="y2Me56xn0DxdpA0KmuQanm"><span class="st-em" data-page-node-id="MRdUAAQkPj6rEjbRCsaFrU"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="ZLlDfRsOUpLUg2keP5pQxW"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2" data-page-node-id="dIoi7KYOwlUrUqIx17C8mJ"/><rect height="11" rx="3" width="14" x="5" y="7" data-page-node-id="aBuGt1Zpvu5rir1tRZ14Uj"/><circle cx="9.5" cy="12.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="16jnhTavrwMu45qoeBH2Zg"/><circle cx="14.5" cy="12.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="rdgzeklQHrrdCdqSPCHFGE"/><path d="M9.5 15.5h5" data-page-node-id="JF5WYGAWXSdIsKMysBJTC1"/></svg></span><h3 data-page-node-id="GOdxqSCXgWb0RWDqxOqe1d">AI 习惯助手</h3><button class="st-add" onclick="openAiCfg()" data-page-node-id="vRbKfCpWiEKvW9BBKgIfbM"><span class="plus" data-page-node-id="iO2eqzEDpd1pggxI26tXnx">⚙</span> 配置</button></div>
+    <div class="page" id="page-ai" data-page-node-id="5jRbm1JREJDBq4RSLq08HM">
+      <div class="sec-title" data-page-node-id="hvIgImHYEWI5Qe8ZTIl4Gi"><span class="st-em" data-page-node-id="mc1ZqGRgMgluZa3YkusiGU"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="Mi2A3LnSuaqaOkLSRiBNMd"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2" data-page-node-id="UYUrSiT42BE886IWCsbL49"/><rect height="11" rx="3" width="14" x="5" y="7" data-page-node-id="x1wb65wPFeEje7ESsJiSow"/><circle cx="9.5" cy="12.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="siDQZp87uXkJwzC1nl0LSF"/><circle cx="14.5" cy="12.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="32ezpDjBpppmvHFsjCJbIW"/><path d="M9.5 15.5h5" data-page-node-id="EpBbRDjSYFa3AhjjAFmEuO"/></svg></span><h3 data-page-node-id="i6ccKi1u5lmbnuUDrGTNPo">AI 习惯助手</h3><button class="st-add" onclick="openAiCfg()" data-page-node-id="9ELUUXg3pOyyuVgqU0jwel"><span class="plus" data-page-node-id="DXbRH8SquTaoGt6f3OXNKx">⚙</span> 配置</button></div>
 
       <!-- 今日诊断卡 -->
-      <div class="card ai-diag" id="aiDiagCard" data-page-node-id="Dx6Ih2z5uZjPt23py76eiA">
-        <div class="ai-diag-head" data-page-node-id="AQ8y5BcAufDvnEYcp6KnSn">
-          <span class="ai-dot" id="aiDiagDot" data-page-node-id="LAsc37TIcD6RTKH17b5t1w"></span>
-          <span class="ai-diag-t" data-page-node-id="BUr6DP3VxMf41RTxDcrdQB">今日诊断</span>
-          <button class="ai-refresh" id="aiDiagBtn" onclick="runDiagnose()" data-page-node-id="BCzqzL55MhxYDamTEzN6EM">生成</button>
+      <div class="card ai-diag" id="aiDiagCard" data-page-node-id="1k922yGmymg8ahMn7ZSCGA">
+        <div class="ai-diag-head" data-page-node-id="EtvPeiB0SXqjHV76InoEGJ">
+          <span class="ai-dot" id="aiDiagDot" data-page-node-id="CUg8THG2QEArlyjVWjViPb"></span>
+          <span class="ai-diag-t" data-page-node-id="t0XhvwrKbdyUiQWEulIRJE">今日诊断</span>
+          <button class="ai-refresh" id="aiDiagBtn" onclick="runDiagnose()" data-page-node-id="DDPcUB6CxELl1OCsa7B8K2">生成</button>
         </div>
-        <div class="ai-diag-body" id="aiDiagBody" data-page-node-id="BnuubxLWGlfI7c5XHz7cph">还没有诊断。点右上角「生成」，让 AI 看看你最近做得怎么样。</div>
+        <div class="ai-diag-body" id="aiDiagBody" data-page-node-id="JAua2NW2yqBtbULAl7eJYn">还没有诊断。点右上角「生成」，让 AI 看看你最近做得怎么样。</div>
       </div>
 
       <!-- 聊天区 -->
-      <div class="sec-title" data-page-node-id="Z1tORzs9lE7nf5dKHWvIUF"><span class="st-em" data-page-node-id="pwWxqq1yibdRlL7SwCPEe2"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="4jjKuI4UmfF1PR6eFqi2vH"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1-4.5A8 8 0 1 1 21 12z" data-page-node-id="h7uDs8vXybXymBa4CBeWG5"/></svg></span><h3 data-page-node-id="bbyA7wl0H6DMrTRSoRj0YZ">跟它聊聊</h3><span class="st-more" id="aiModelTip" data-page-node-id="cUyRwMEpssahtTmv4OtwCA"></span></div>
-      <div class="chat-wrap" id="chatWrap" data-page-node-id="OYuttm16OJqVfe7wYBQ9LG"></div>
-      <div class="chat-quick" id="chatQuick" data-page-node-id="sQd0Vd0hKU3VQVYTfp1GgX"></div>
-      <div class="chat-bar" data-page-node-id="hugiKIsG2xKGNCYtc7w22Z">
-        <input id="chatInput" type="text" placeholder="问问它：我这周怎么样？帮我调个目标…" autocomplete="off" data-page-node-id="VDz8D4ojFdfkH4wx9zehS7">
-        <button id="chatSend" onclick="sendChat()" data-page-node-id="4lPaPRELkM0zLE6pyGrjPf">发送</button>
+      <div class="sec-title" data-page-node-id="g7qFIPOKNAto2pcRGY3CU5"><span class="st-em" data-page-node-id="vo2BCq6a7QSjmgABE60mXd"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="ehKWB2gklY6mTtieFViV3C"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1-4.5A8 8 0 1 1 21 12z" data-page-node-id="ZkHOyxcYgSlGOJfpvIJiez"/></svg></span><h3 data-page-node-id="RSlTkMCVAsBACuONXEDX5q">跟它聊聊</h3><span class="st-more" id="aiModelTip" data-page-node-id="BgvC3E58dPfb0vKcBp7aiK"></span></div>
+      <div class="chat-wrap" id="chatWrap" data-page-node-id="P3yzxh6rKiKei3cUu8Q4xH"></div>
+      <div class="chat-quick" id="chatQuick" data-page-node-id="WA2ynCyVcyoAYFL1ppx6Ai"></div>
+      <div class="chat-bar" data-page-node-id="aEpqZ1aZusoxPuzBDvCdrd">
+        <input id="chatInput" type="text" placeholder="问问它：我这周怎么样？帮我调个目标…" autocomplete="off" data-page-node-id="GDM9Tb0cdpyMFXDzUmYYtO">
+        <button id="chatSend" onclick="sendChat()" data-page-node-id="TAxOmVgYhGn9oLfJNI02yw">发送</button>
       </div>
     </div>
 
-    <div class="page" id="page-remind" data-page-node-id="wSB7wkjYorOvQAGqE88ESt">
-      <div class="sec-title" data-page-node-id="SkrJeKMmuTUvliGXaQvj12"><span class="st-em" data-page-node-id="lzObpGz7duDJn3t8huypq0"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="qNqatElDS4UZ9rOrVxkq9e"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2H4.5z" data-page-node-id="8yLbCnA1nOfEK7g2f0hAV8"/><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0" data-page-node-id="SJwr4dFzJFqomNz6aE02GH"/></svg></span><h3 data-page-node-id="70gqrrxYOfwb8Wzl9FOmZj">提醒设置</h3><button class="st-add" onclick="openAddRemind()" data-page-node-id="6jx8gmLGLbWtnHbpt4FRM9"><span class="plus" data-page-node-id="UtD3fBGACvIgC2K5z9MnDy">＋</span> 添加</button></div>
-      <div class="card remind-tip" data-page-node-id="Gb9Smv0PXzueedtYwt6P63">
-        网页没法在你关掉后自己响。这里设好时间后，<b data-page-node-id="siCXnUBxMZbF6rWe0JNjRD">一键导出到 iPhone「提醒事项」</b>，到点由系统真提醒你。
+    <div class="page" id="page-remind" data-page-node-id="GPAvaJwB6T3eNd5NzYXGXy">
+      <div class="sec-title" data-page-node-id="dxgujzFZbzDArziCDFuVxm"><span class="st-em" data-page-node-id="TjE1mfHjKW20dqPMCwh2PG"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="EVSHFSFAG1nInQwKEKL7gp"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2H4.5z" data-page-node-id="VQdIAjaRXjB733B6hHyJox"/><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0" data-page-node-id="xCxgtkAwi1DqNwaFBFiLWc"/></svg></span><h3 data-page-node-id="5BTA0o2FGJ0IVyRCxEoFuP">提醒设置</h3><button class="st-add" onclick="openAddRemind()" data-page-node-id="lA8EXtKHE54OWQSGR5FBBr"><span class="plus" data-page-node-id="iQFpPUK88V1zbvJXEhe7To">＋</span> 添加</button></div>
+      <div class="card remind-tip" data-page-node-id="jGoKu6XkEHril5XE1vsHWu">
+        网页没法在你关掉后自己响。这里设好时间后，<b data-page-node-id="3fEufHiSWgIgiapkjQIYJI">一键导出到 iPhone「提醒事项」</b>，到点由系统真提醒你。
       </div>
-      <div id="remindList" data-page-node-id="nCzLjSHR8iu1ZH46JWJMP4"></div>
-      <div class="sec-title" data-page-node-id="eoK4cFhxNKWpQiVY0bM088"><span class="st-em" data-page-node-id="OIYIUhF3MEcCy4E38TxQgX"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="8GkLj11Vk8bjDc7fjWL67S"><path d="M12 3v12" data-page-node-id="VD0H8M6gVpO98KAgUTRSoN"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5" data-page-node-id="EyLPE4SNRTT5A3Fa121HdA"/><path d="M4 18v2h16v-2" data-page-node-id="PFwpEQZt372jd761jPOgxw"/></svg></span><h3 data-page-node-id="ivXA2mKVd555KhXEv998FC">导出到系统</h3></div>
-      <div class="card" data-page-node-id="HBxNUgnrnxseeeL4ihRCF8">
-        <button class="export-ics-btn" onclick="exportICS()" data-page-node-id="nllHaN7pWVH5rH8CdfJ1vo">导出全部提醒（.ics 文件）</button>
-        <div class="export-hint" data-page-node-id="9r9NkKMSHDsJcf2F8aG0I4">导出后点开文件 →「添加到提醒事项」，之后 iPhone 到点自动响。</div>
+      <div id="remindList" data-page-node-id="BTPwbFIdwY1DiZMpZxWzho"></div>
+      <div class="sec-title" data-page-node-id="6LYRJSoqnbHDYVpqGCGxP6"><span class="st-em" data-page-node-id="2T6mnDfj66zMihQddoMCrv"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="SU5SYt7F8jEDev0dwqwtgo"><path d="M12 3v12" data-page-node-id="TiDayppSEYvyB43fdqL7yQ"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5" data-page-node-id="Yx4ET7QWPst4T6r33tR7vw"/><path d="M4 18v2h16v-2" data-page-node-id="OvE33l1gZL8EISBLw4MvVJ"/></svg></span><h3 data-page-node-id="TIeJlNW9D3AVCh1rk2bXWX">导出到系统</h3></div>
+      <div class="card" data-page-node-id="Z3Htdfg1G9GXsEDFoGzDwa">
+        <button class="export-ics-btn" onclick="exportICS()" data-page-node-id="cbr9Bo34OBLturpXvYxVu4">导出全部提醒（.ics 文件）</button>
+        <div class="export-hint" data-page-node-id="pfRtp2ssfALzLRMbZvS7lI">导出后点开文件 →「添加到提醒事项」，之后 iPhone 到点自动响。</div>
       </div>
     </div>
 
-    <div class="page" id="page-mine" data-page-node-id="oStERG6rvFVHPPtRPsEXzt">
-      <div class="profile" data-page-node-id="I1iilhIv4S9DuOholETWzN">
-        <div class="p-ava" id="pAva" onclick="openProfile()" data-page-node-id="E91afSOYBetpopT8TdgQJ6">☕</div>
-        <div class="p-name" id="pName" data-page-node-id="srGtQZWBZgRDMqgpLM3ikX">Leah</div>
-        <div class="p-sub" data-i18n="p_sub" id="pSub" data-page-node-id="51LxuYWXCfuUkgv6BPYhbt">点击头像自定义昵称 · 数据存在本机</div>
-        <div class="p-stats" data-page-node-id="JWuPjpHHRwKAytgtpp2ceO">
-          <div class="p-stat" data-page-node-id="3S3N0ZnqJv10bJtm8mRk2C"><b id="psDays" data-page-node-id="Ok94C3YASJQZBXk5PoeDhU">0</b><span data-i18n="p_days" data-page-node-id="yH5izMaW62fwuBuDjEpkL1">累计打卡天</span></div>
-          <div class="p-stat" data-page-node-id="VyphaMdhVm1XuZkuRSKFg5"><b id="psStreak" data-page-node-id="RdYwDjA5MWd37IUUvDrCkv">0</b><span data-i18n="best_streak" data-page-node-id="mQoU39XIOEjQj8vpAMQxAJ">最长连续</span></div>
-          <div class="p-stat" data-page-node-id="pWe0e2jiA3nFKHyvbVrYdP"><b id="psHabit" data-page-node-id="Wwq7aDTuYLiy2rUBwxDPS7">0</b><span data-i18n="p_habits" data-page-node-id="9HiR3WQjZP4FWvVIWSFplr">习惯数</span></div>
+    <div class="page" id="page-mine" data-page-node-id="F9HBzJT9wCBetNpCYTmJ9d">
+      <div class="profile" data-page-node-id="n01UG8iiYRIiBcZ6AICt6k">
+        <div class="p-ava" id="pAva" onclick="openProfile()" data-page-node-id="CzHig7TNpkv1J12iqw6Zpi">☕</div>
+        <div class="p-name" id="pName" data-page-node-id="FowPumWKSGtcy4tlmg6Yhm">Leah</div>
+        <div class="p-sub" data-i18n="p_sub" id="pSub" data-page-node-id="FyQCRuZmZ6zdZdMxPIwfVg">点击头像自定义昵称 · 数据存在本机</div>
+        <div class="p-stats" data-page-node-id="BAYuGTXLEVyAb9l3LC3Pls">
+          <div class="p-stat" data-page-node-id="LzPbWCb4VzKUDaZHA9ucZj"><b id="psDays" data-page-node-id="rVI29plEc6kcTgTJuYx6kl">0</b><span data-i18n="p_days" data-page-node-id="kyrNEPlVv5wfc6GfnPCFVU">累计打卡天</span></div>
+          <div class="p-stat" data-page-node-id="3USLumcCchuRGN0aO4yOK8"><b id="psStreak" data-page-node-id="K4dXk7zjbdplp8VwLgOBfm">0</b><span data-i18n="best_streak" data-page-node-id="e6HlxkowOpSzyrj9HekMhm">最长连续</span></div>
+          <div class="p-stat" data-page-node-id="TD6shi4XXiFpGcyDupSftO"><b id="psHabit" data-page-node-id="adXVgQjRQMsUq6TjjG0HJR">0</b><span data-i18n="p_habits" data-page-node-id="wnLgH1cOSjqe0gU6kXLDFh">习惯数</span></div>
         </div>
       </div>
 
-      <div class="sec-title" data-page-node-id="Dq0DNy75xhdSpFsJFC0Ql4"><span class="st-em" data-page-node-id="Hsz78JpNW1O0bt7a4IJXFJ"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="Lo3RbBFsWBpsMC43h0G0Bq"><circle cx="12" cy="12" r="3" data-page-node-id="25p9EDeWuPGxV6vCGO5vSH"/><path d="M12 3v2.5M12 18.5V21M4.2 7.5l2.1 1.2M17.7 15.3l2.1 1.2M4.2 16.5l2.1-1.2M17.7 8.7l2.1-1.2" data-page-node-id="nHhue9b0qn6wd7l8hHGArt"/></svg></span><h3 data-i18n="settings" data-page-node-id="vKqyn0MeAwDuRJz1yksU9D">设置</h3></div>
-      <div class="menu-card" data-page-node-id="1jqrJXyRgsAa4itfnzFnie">
-        <div class="menu-item" onclick="openAiCfg()" data-page-node-id="sKRViQPD9JHwn7KdS2dAGk">
-          <div class="mi-ico" style="background:var(--sky-t); color:var(--sky)" data-page-node-id="d8qSMAWJFCfLoQzOb3l4se"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block" data-page-node-id="jV1GcmsNJCCGbKO4TzUZ75"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2" data-page-node-id="jM9e9ytHt7g3pFAbcuyrMP"/><rect height="11" rx="3" width="14" x="5" y="7" data-page-node-id="hBPJv5MKe8JLMZYW7EC3Si"/><circle cx="9.5" cy="12.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="1qFPJdlG4mwu4wCYTn32iG"/><circle cx="14.5" cy="12.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="R7Ab9r4jyGP4hiOtNoEbCl"/><path d="M9.5 15.5h5" data-page-node-id="pD0XshyqnG84YaNZVDNsJC"/></svg></div>
-          <div class="mi-txt" data-page-node-id="5kxOHteuVLXbeu3IwrkrR7"><div class="mi-t" data-page-node-id="HikpCCI4ldmZJ3TYTlrkUr">AI 助手配置</div><div class="mi-s" id="aiCfgSub" data-page-node-id="5D8wwm8GAGFEkVM6dAWMRY">填入你自己的 API key，让 AI 分析你的打卡</div></div>
-          <div class="mi-arrow" data-page-node-id="9dHoM7ArIAK8yWcq49I6jB">›</div>
+      <div class="sec-title" data-page-node-id="PPVbQfhkgHFxrOTqjeJIY5"><span class="st-em" data-page-node-id="UaeB1ogCJlD8p9B5HbRgou"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="tG6nBy1j2xsK6dIGFCozdX"><circle cx="12" cy="12" r="3" data-page-node-id="SCVrNNaWNxIy3gjeCHFfoh"/><path d="M12 3v2.5M12 18.5V21M4.2 7.5l2.1 1.2M17.7 15.3l2.1 1.2M4.2 16.5l2.1-1.2M17.7 8.7l2.1-1.2" data-page-node-id="goP3jlOZRy2zHu36KGtLNb"/></svg></span><h3 data-i18n="settings" data-page-node-id="kMlhG09i0yJwXCy0YudQU2">设置</h3></div>
+      <div class="menu-card" data-page-node-id="7s678hjnkFksy72MHZ3JGV">
+        <div class="menu-item" onclick="openAiCfg()" data-page-node-id="gdiXy5pD2EljnIutZpYdDm">
+          <div class="mi-ico" style="background:var(--sky-t); color:var(--sky)" data-page-node-id="2Pl7wciT4d5Wgw5rSRhCFO"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block" data-page-node-id="lNU7zgEvQd1JRxKrs7xZxK"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2" data-page-node-id="KvHyEcOGjOXfCVCN49Aflx"/><rect height="11" rx="3" width="14" x="5" y="7" data-page-node-id="oAEblTRbT9IOYjSnbKKEeW"/><circle cx="9.5" cy="12.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="QNPcgHT42aFUM0mIKLq4Jd"/><circle cx="14.5" cy="12.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="RX2EKGIv1kc9MBXdrXgdNf"/><path d="M9.5 15.5h5" data-page-node-id="gZ5pXBdIFxnSg4ZnYdKpHk"/></svg></div>
+          <div class="mi-txt" data-page-node-id="14fUzR3MiCKGJEkcmDqqu4"><div class="mi-t" data-page-node-id="IBSkxm0HnBfPnNK0WkpHmr">AI 助手配置</div><div class="mi-s" id="aiCfgSub" data-page-node-id="Ge3f3RZeUzOga8hvLzhcJR">填入你自己的 API key，让 AI 分析你的打卡</div></div>
+          <div class="mi-arrow" data-page-node-id="jT1CpiB9Yt0lh2Hn9CsKjM">›</div>
         </div>
-        <div class="menu-item" onclick="go('remind')" data-page-node-id="2BVT4FI1xoFQUiv0ehpFO3">
-          <div class="mi-ico" style="background:var(--rose-t); color:var(--rose)" data-page-node-id="mxfD3DUuVEbm4qNoKVKQCC"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block" data-page-node-id="DrdbblSMthcShOMzt4G8Ji"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2H4.5z" data-page-node-id="cfE7eGsl0DXaARoAf54Er1"/><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0" data-page-node-id="CvQC7c7UdUDQpBNEIP1iFi"/></svg></div>
-          <div class="mi-txt" data-page-node-id="bMSBAdCjsYS9MrmBxtSTyc"><div class="mi-t" data-page-node-id="huhB3NgAJMK7cfbBA6ES6z">提醒设置</div><div class="mi-s" id="remindSub" data-page-node-id="BUgbFHYFxFrCTFGbP0Vanf">设置到点提醒，可导出到手机系统</div></div>
-          <div class="mi-arrow" data-page-node-id="KssRxcleKkIRpwKEFgAKwu">›</div>
+        <div class="menu-item" onclick="go('remind')" data-page-node-id="1etOmvao3n89BQIibZ9WEl">
+          <div class="mi-ico" style="background:var(--rose-t); color:var(--rose)" data-page-node-id="7QPExYZ1EHOYbuTTG5K18Y"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block" data-page-node-id="7VPysMqax7ibi3FoaWXF0U"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2H4.5z" data-page-node-id="DgkymX7FmQelXo55fKBdek"/><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0" data-page-node-id="v9FuC5evD4CtaQ0EGPgCgn"/></svg></div>
+          <div class="mi-txt" data-page-node-id="GS9oUajRehYIoisGh6oB49"><div class="mi-t" data-page-node-id="mbvtfNsAbcd02LgwLxZlBP">提醒设置</div><div class="mi-s" id="remindSub" data-page-node-id="oIR4FGhSSM34fGbWvO3sIA">设置到点提醒，可导出到手机系统</div></div>
+          <div class="mi-arrow" data-page-node-id="a1k3jtytrD51i3ZgeZR2by">›</div>
         </div>
-        <div class="menu-item" onclick="openTheme()" data-page-node-id="qFQp3q2Ify8f373Opk7HN4">
-          <div class="mi-ico" style="background:var(--accent-t); color:var(--accent-d)" data-page-node-id="aJioTMMunnWzMrIRaiB0SG"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block" data-page-node-id="2HuUuEre4kTr3jUCaR3tdU"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-3.9-4-6.4-9-6.4z" data-page-node-id="KUFvqejLHfeEBFNFzDs5oY"/><circle cx="7.5" cy="11.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="o269XL6QXJzxKOwAUQwyjc"/><circle cx="12" cy="8" fill="currentColor" r="1.1" stroke="none" data-page-node-id="QOYhhpRycSZUvfFB7jbLIX"/><circle cx="16.5" cy="11.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="WmN53IxTBpWW8uMlY3ubGl"/></svg></div>
-          <div class="mi-txt" data-page-node-id="XLykHe3AcznRuKoMFHbpDa"><div class="mi-t" data-i18n="theme_appearance" data-page-node-id="617Gex6UDAKKTdctEmSjy5">主题外观</div><div class="mi-s" data-i18n="theme_appearance_sub" data-page-node-id="BOv3SzAdFs0x0HL87usuLM">换个背景底色与胶囊按钮配色</div></div>
-          <div class="mi-arrow" data-page-node-id="InfvdFXmawUVg3Lg53Xgib">›</div>
+        <div class="menu-item" onclick="openTheme()" data-page-node-id="cuMcbL49mxhMCzcWJ9khjj">
+          <div class="mi-ico" style="background:var(--accent-t); color:var(--accent-d)" data-page-node-id="FgyZ0NgojBbf2x1Zr48BLT"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block" data-page-node-id="QNiFGo9NcFEAA6iNW1MtBo"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-3.9-4-6.4-9-6.4z" data-page-node-id="7GTDkNSF28R9eOCwFoVIC5"/><circle cx="7.5" cy="11.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="aiDjnDcqtmxS2rKAIt2Dz1"/><circle cx="12" cy="8" fill="currentColor" r="1.1" stroke="none" data-page-node-id="XlRYMSL4pjtagH33pWyRGH"/><circle cx="16.5" cy="11.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="z5waAttVsuDnLx5uwmHXHx"/></svg></div>
+          <div class="mi-txt" data-page-node-id="QAwsXHT3BsT40tRSbnKAKo"><div class="mi-t" data-i18n="theme_appearance" data-page-node-id="AWxJL1EkUDzkG6cRbsGNnJ">主题外观</div><div class="mi-s" data-i18n="theme_appearance_sub" data-page-node-id="KOlSPzLczveSE6hLCM0aPx">换个背景底色与胶囊按钮配色</div></div>
+          <div class="mi-arrow" data-page-node-id="Oc8h84lAmEYKFj95gclStt">›</div>
         </div>
-        <div class="menu-item" data-page-node-id="xtTNm1D8ENkFkLhYcPQlm8">
-          <div class="mi-ico" style="background:var(--rose-t); color:var(--rose)" data-page-node-id="tGaF3tDaxRz2PEMoXdmOeO"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block" data-page-node-id="gCDxTwB0CJ9655AQkFuWMP"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2H4.5z" data-page-node-id="ywNC2AnO0Anxgl3pZO07gD"/><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0" data-page-node-id="nfqz6PjYQHJoCvEFEkfK9e"/></svg></div>
-          <div class="mi-txt" data-page-node-id="0qQ2hwENS7UFmwaNUglHjn"><div class="mi-t" data-i18n="remind_title" data-page-node-id="Mm8Y1cbnZ5fMGwVTOufPmQ">晚间打卡提醒</div><div class="mi-s" data-i18n="remind_sub" data-page-node-id="F53j5pXUz8D07NOUhMmXFO">晚 8 点后未打卡的习惯会闪烁提醒</div></div>
-          <div class="mi-toggle on" id="tgRemind" onclick="toggleRemind(this)" data-page-node-id="XcS10RFdY7UZymTIdGUIds"></div>
+        <div class="menu-item" data-page-node-id="WiuFmDfVxQ4rHCmhWwxeMm">
+          <div class="mi-ico" style="background:var(--rose-t); color:var(--rose)" data-page-node-id="aiN0tn5D8eH2daM1zBpLCj"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block" data-page-node-id="TmkTTdrFGFE5qnJ7duJKDv"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2H4.5z" data-page-node-id="J92pXHluBWiKbOZAPiDNtk"/><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0" data-page-node-id="cPoUZCabGWRRbCh3K1VwL6"/></svg></div>
+          <div class="mi-txt" data-page-node-id="fWKdw8AOky46WIPRL3WIe5"><div class="mi-t" data-i18n="remind_title" data-page-node-id="83jrz2TvmXt1Fvv8EuEFYk">晚间打卡提醒</div><div class="mi-s" data-i18n="remind_sub" data-page-node-id="xE5jDaiXhx9EU6BbGR9lm3">晚 8 点后未打卡的习惯会闪烁提醒</div></div>
+          <div class="mi-toggle on" id="tgRemind" onclick="toggleRemind(this)" data-page-node-id="aITwxlAZIKl78ODuff5uhD"></div>
         </div>
-        <div class="menu-item" data-page-node-id="ZUraeFePaOHB7RQC6NBuXW">
-          <div class="mi-ico" style="background:var(--sage-t); color:var(--sage)" data-page-node-id="Zvg6hM6iYzfFq10XI6Hwq8"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block" data-page-node-id="4R74XD3BHqEaJkxqt7Lq9F"><path d="M5 9v6h3.5L14 20V4L8.5 9z" data-page-node-id="30DMTgtkDFIIbQg5wYuOB7"/><path d="M17 8.5a4 4 0 0 1 0 7" data-page-node-id="NL7HH7vQHQ0YXWw732ljl5"/></svg></div>
-          <div class="mi-txt" data-page-node-id="1ybjDjvhFE7DJL4y26N8Sf"><div class="mi-t" data-i18n="sound_title" data-page-node-id="fPL8Ljq0jUMlALg41vJ55L">打卡音效与震动</div><div class="mi-s" data-i18n="sound_sub" data-page-node-id="V1tIGrjN8iboUKaKkcZkDR">打卡时的满足感反馈</div></div>
-          <div class="mi-toggle on" id="tgSound" onclick="toggleSound(this)" data-page-node-id="LThL9wHHbi7sTNhyWBBoRn"></div>
-        </div>
-      </div>
-
-      <div class="sec-title" data-page-node-id="UmWAFuyYfcO8jtnjPuGMkv"><span class="st-em" data-page-node-id="9GHP7MiGx2AXPqhvSlf7y4"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="yTBCg5xWkczF8J8cIz9KG2"><path d="M5 4h11l3 3v13H5z" data-page-node-id="7flS476bQpud99bSu89OWz"/><path d="M8 4v5h7V4" data-page-node-id="yzaDEsXvZmOBYLTCQ1KG04"/><rect height="4" width="8" x="8" y="13" data-page-node-id="sqXBXczLdZUpdDQw6ykyc5"/></svg></span><h3 data-i18n="backup" data-page-node-id="MztyeEqG0JaeE5xazBcz4A">数据管理</h3></div>
-      <div class="menu-card" data-page-node-id="MnSKzbzCeyba9MJHSIkfUM">
-        <div class="menu-item" onclick="clearSample()" data-page-node-id="ZRCrTyBzviDEVssxRg3Qxd">
-          <div class="mi-ico" style="background:var(--gold-t); color:var(--gold)" data-page-node-id="9WxCNkg08iq9Dyl67trd56"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block" data-page-node-id="F4LV19ptWtTbeAn8QgED4q"><path d="M16 4l-6.5 6.5" data-page-node-id="uIJBU3ps7XHgEt9npfgGNb"/><path d="M9 10l5 5" data-page-node-id="3cDk47OhflgV1Qmhtqfyfz"/><path d="M7 13l4 4-5.5 3L4 18z" data-page-node-id="sixu7vxtt7G0kkggSwAuvL"/></svg></div>
-          <div class="mi-txt" data-page-node-id="73V4CYD7pGVN5FFXFGNowV"><div class="mi-t" data-i18n="clear_title" data-page-node-id="XeQ0cAAlL2K0rbcYzhvaQ4">清空示例</div><div class="mi-s" id="clearSub" data-page-node-id="bKKTbQWHpx9rKsXasOIDT7">清掉示例数据，开始记录自己的</div></div>
-          <div class="mi-arrow" data-page-node-id="X6uVEHh6xt9OEcqZ5BARnp">›</div>
+        <div class="menu-item" data-page-node-id="BptoBq6EejPP1nhRuP2Wq2">
+          <div class="mi-ico" style="background:var(--sage-t); color:var(--sage)" data-page-node-id="tUYSrGBbXuvkiEOVKNM0YT"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block" data-page-node-id="eTMudGcKSeLpRENCw5RgWx"><path d="M5 9v6h3.5L14 20V4L8.5 9z" data-page-node-id="F8XsLlC23kyyjcEj0BWOBQ"/><path d="M17 8.5a4 4 0 0 1 0 7" data-page-node-id="ITdJkyhjnCdTgSxOqhDuV9"/></svg></div>
+          <div class="mi-txt" data-page-node-id="qHdbJYF1qhnU92PVdFHpXL"><div class="mi-t" data-i18n="sound_title" data-page-node-id="i1OQCrC0tkhb6qVwAHASv9">打卡音效与震动</div><div class="mi-s" data-i18n="sound_sub" data-page-node-id="7GTbOdpvhFDByoxIqIoeH0">打卡时的满足感反馈</div></div>
+          <div class="mi-toggle on" id="tgSound" onclick="toggleSound(this)" data-page-node-id="7wd28Am3Ix9m3VjhOvE9C2"></div>
         </div>
       </div>
 
-      <div class="sec-title" data-page-node-id="grIqrYMuiwpIZfIK6U2qGS"><span class="st-em" data-page-node-id="RDTGHmqPRNWhmqPpZgRA2a"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="D4kezA0nRi9EHQQZkOy2DQ"><rect height="18" rx="2.5" width="10" x="7" y="3" data-page-node-id="nNSX3CsRT6nvZFBjFU6SJ8"/><path d="M10.5 18h3" data-page-node-id="874HvHBGuPeMsA3u4FnhOl"/></svg></span><h3 data-i18n="install_title" data-page-node-id="ET0TPKb8SDMCUvSvMyGOI8">装成 App</h3></div>
-      <div class="card" id="installCard" style="color:var(--ink-soft); font-size:13px; line-height:1.9" data-page-node-id="DDEEO7k5Wo6TVchzpEqHgu">
-        <b style="color:var(--ink)" data-page-node-id="gm78RujgqG9bZxEA5TKMNc">iPhone：</b>Safari 打开 → 底部「分享」→「添加到主屏幕」<br data-page-node-id="zsrzc4GXucBoedc9gJGlG9">
-        <b style="color:var(--ink)" data-page-node-id="JsCvJxkOYS520Ir9QB22Zn">安卓：</b>浏览器菜单 →「添加到主屏幕 / 安装应用」<br data-page-node-id="jcpovnm3mO00xcIP1dJEfq">
+      <div class="sec-title" data-page-node-id="yAxWn1XL7AFYpHJY0KDo7y"><span class="st-em" data-page-node-id="DoNdQdnCeclX8NQEOTBT8W"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="Zk0hf791lJxSipbAYQuM5b"><path d="M5 4h11l3 3v13H5z" data-page-node-id="5RPttOgrBFRZEfuMmmVFet"/><path d="M8 4v5h7V4" data-page-node-id="CuIpdLpy16UbQFaCdexqQH"/><rect height="4" width="8" x="8" y="13" data-page-node-id="YFwgsmYAB7BOWZ5MDcaSxC"/></svg></span><h3 data-i18n="backup" data-page-node-id="weJCOw0A6TV4lAF7t2I4g1">数据管理</h3></div>
+      <div class="menu-card" data-page-node-id="iCvBLhj4T63CSvPHdziXa6">
+        <div class="menu-item" onclick="clearSample()" data-page-node-id="6gQLx0udBs2npbPLuA3BQz">
+          <div class="mi-ico" style="background:var(--gold-t); color:var(--gold)" data-page-node-id="8yzVUbrzu5lpmHX0KH4G57"><svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" style="display:block" data-page-node-id="YKKCu2g7E5dXxQqN5rsrZ0"><path d="M16 4l-6.5 6.5" data-page-node-id="F5N1dvXFkOfAER83Gt1lwX"/><path d="M9 10l5 5" data-page-node-id="hpA0EHllueZotRg8LFilcl"/><path d="M7 13l4 4-5.5 3L4 18z" data-page-node-id="y153vajXRThLcwY0hvsCfA"/></svg></div>
+          <div class="mi-txt" data-page-node-id="UThIvUqhGHfORbL3yP3l8J"><div class="mi-t" data-i18n="clear_title" data-page-node-id="ucKBFTXIDvmLSeQyBdVqom">清空示例</div><div class="mi-s" id="clearSub" data-page-node-id="bRoki90VyP5nSdBCUdhABC">清掉示例数据，开始记录自己的</div></div>
+          <div class="mi-arrow" data-page-node-id="WqhEKLNAt9vkrYOG7oLV11">›</div>
+        </div>
+      </div>
+
+      <div class="sec-title" data-page-node-id="EBMoNcHz6wceAYFazDNhS4"><span class="st-em" data-page-node-id="8dzyZEhoXXn0EmLpmq5lJh"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block" data-page-node-id="v8F3ZlPha6EzKvJ7bRHgo0"><rect height="18" rx="2.5" width="10" x="7" y="3" data-page-node-id="aaKGS1CnbbEQineSXAkLxH"/><path d="M10.5 18h3" data-page-node-id="i61ST8xDMiarzwAsEGiPP4"/></svg></span><h3 data-i18n="install_title" data-page-node-id="yh1hUjjtTdhPALdnDVxike">装成 App</h3></div>
+      <div class="card" id="installCard" style="color:var(--ink-soft); font-size:13px; line-height:1.9" data-page-node-id="leySsW0XGxvhtoZCqLTCOH">
+        <b style="color:var(--ink)" data-page-node-id="OLiNtLPsosar1XUjE7WM96">iPhone：</b>Safari 打开 → 底部「分享」→「添加到主屏幕」<br data-page-node-id="KsAz1PCf2pMkF8JzlSx93e">
+        <b style="color:var(--ink)" data-page-node-id="LGbychASUrHowo7COtvG06">安卓：</b>浏览器菜单 →「添加到主屏幕 / 安装应用」<br data-page-node-id="3GrDWHmESUMBSliLkU9sHK">
         之后点桌面图标全屏打开，跟原生 App 一样。
       </div>
     </div>
@@ -744,120 +757,124 @@ body{
   </div>
 
   <!-- 底部 Tab -->
-  <div class="tabbar" data-page-node-id="vC2LIDbAhSZjlebfaDb6aJ">
-    <div class="tab on" data-tab="today" onclick="go('today')" data-page-node-id="mlCqPIYnPFLAlLGfDEtndp"><span class="ti" data-page-node-id="ZxDokJxlDMn73OvAf3mTz7"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" data-page-node-id="sfNQFt8ykcSSps7ZyTjFO1"><path d="M3 10.4 12 3l9 7.4" data-page-node-id="H1TuliE20wBgCPk3F4kK8k"/><path d="M5 9.2V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.2" data-page-node-id="WUiS1ocdlKiW5zSgnFOq4s"/></svg></span><span class="tl" data-i18n="tab_today" data-page-node-id="oLzcA0J86RBZZCEdoDVByh">今日</span><span class="tdot" data-page-node-id="BvoypdP1J3F9E6UBqEfijI"></span></div>
-    <div class="tab" data-tab="habit" onclick="go('habit')" data-page-node-id="bwr0bM3kqCALP5BmJ1PNqo"><span class="ti" data-page-node-id="8Sb0CJsTze0jtpsDORAGiW"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" data-page-node-id="CXKwcKHQcHejUU887GFLTM"><rect height="16" rx="2.5" width="17" x="3.5" y="4.5" data-page-node-id="26mmkbekObO642m1wpXXs8"/><path d="M3.5 9h17M8 2.5v4M16 2.5v4" data-page-node-id="9xLdQ19IKv4zjvz2HM6hRg"/><path d="m8.6 14.3 2.1 2.1 4-4.2" data-page-node-id="f8iCVDm1VCRFiGiV1LpHtC"/></svg></span><span class="tl" data-i18n="tab_habit" data-page-node-id="sh1YeOz6klvK78Sn0QwnXk">习惯</span></div>
-    <div class="tab" data-tab="stat" onclick="go('stat')" data-page-node-id="DYCKRKh1LqTNBZGPddXnGz"><span class="ti" data-page-node-id="oj4cBIImHncyc7VdQ3IZHn"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" data-page-node-id="270fVTyS6JJVsVHZyI5bUz"><path d="M4 20V4" data-page-node-id="a8Ltnrq2wd15kXoVNuyHFF"/><path d="M4 20h16" data-page-node-id="fzwKX2Xz7hYzaGVPFkq5Ji"/><rect height="5" rx="1" width="3" x="7" y="12" data-page-node-id="rKRqDeX6VIqRutWEj2oEIN"/><rect height="9" rx="1" width="3" x="12" y="8" data-page-node-id="h8GXaleXA8gDCOdGRYAAlS"/><rect height="12" rx="1" width="3" x="17" y="5" data-page-node-id="mxdfDPJNkwgvJ6HUeIwLaI"/></svg></span><span class="tl" data-i18n="tab_stat" data-page-node-id="swmfouFmfAIrCYTeGouLio">统计</span></div>
-    <div class="tab" data-tab="ai" onclick="go('ai')" data-page-node-id="j8WVZ7wdqBCC00l7GuociN"><span class="ti" data-page-node-id="eUy9C74VWDOM6CDoLcEjK0"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" data-page-node-id="BBm5xzr89OT8zov6MWPXso"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2" data-page-node-id="L9AoOVKSCrEcBOy0Xd4A59"/><rect height="11" rx="3" width="14" x="5" y="7" data-page-node-id="AXkXeJlekZ63ixlECHnlBO"/><circle cx="9.5" cy="12.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="QmQ5Eh40HEwx7xRjhfrgp1"/><circle cx="14.5" cy="12.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="JWPYUddtQsZyjXFuXfMRZ7"/><path d="M9.5 15.5h5" data-page-node-id="ePvgq061q4c7qmMrERdch3"/></svg></span><span class="tl" data-page-node-id="ax5BAOGYMoKF8wjyaUlXPB">AI</span></div>
-    <div class="tab" data-tab="remind" onclick="go('remind')" data-page-node-id="YkIv7s4fNM8MBHA5GZpnC1"><span class="ti" data-page-node-id="euUgle3XpFPi670HCjKIJF"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" data-page-node-id="NZdWvI8OrqjIR5utFCs1oj"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2H4.5z" data-page-node-id="dSDPPbCeMY358hCIdHyULo"/><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0" data-page-node-id="win1DN7cPjhVOmsZlCf8fG"/></svg></span><span class="tl" data-page-node-id="LopG3eYZhOI1bQXM2EKvtv">提醒</span></div>
-    <div class="tab" data-tab="mine" onclick="go('mine')" data-page-node-id="yzaWp8Fzr4UhUeX8bxyaCx"><span class="ti" data-page-node-id="MYhS1mFqzzTp4icsFoi3pg"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" data-page-node-id="ua8xlFCOdKqGs8XWdXBLvE"><circle cx="12" cy="8" r="3.6" data-page-node-id="aRUYAmLBLmf4kX4hf6FSgS"/><path d="M4.5 20c0-3.9 3.4-6.4 7.5-6.4s7.5 2.5 7.5 6.4" data-page-node-id="rPptljT2kKRhseaYOoFpeV"/></svg></span><span class="tl" data-i18n="tab_mine" data-page-node-id="2WmGWr8kJnWMWi4CYGL8Ub">我的</span></div>
+  <div class="tabbar" data-page-node-id="WCIYNsXl2zJ1EtttBWj6J7">
+    <div class="tab on" data-tab="today" onclick="go('today')" data-page-node-id="ozA8ARJ3lCiIWcrPk8zDpW"><span class="ti" data-page-node-id="8N0ehv5HFib1lLs0x7GsOE"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" data-page-node-id="KCReiLDa6qysS5t42L41Nw"><path d="M3 10.4 12 3l9 7.4" data-page-node-id="f16wXnIm1zZOZeToOrWegk"/><path d="M5 9.2V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.2" data-page-node-id="HX2PM18JQmgihgHkfiPpyC"/></svg></span><span class="tl" data-i18n="tab_today" data-page-node-id="fsyt9cPCERysrl2mrnxRet">今日</span><span class="tdot" data-page-node-id="Y98tmMeCfY889ZkRK9vguu"></span></div>
+    <div class="tab" data-tab="habit" onclick="go('habit')" data-page-node-id="37oyAna85ZHJ6lCTyYhJcy"><span class="ti" data-page-node-id="axBNfPFxyW4SmYEV5O4lT5"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" data-page-node-id="VFZfALll3a3Oo179BMkbKp"><rect height="16" rx="2.5" width="17" x="3.5" y="4.5" data-page-node-id="8SfWdFSrYRgFCnnqv5wndr"/><path d="M3.5 9h17M8 2.5v4M16 2.5v4" data-page-node-id="7LG1qI0eF3gKSuUbJP8V86"/><path d="m8.6 14.3 2.1 2.1 4-4.2" data-page-node-id="lqsbb7gQhOZN6YGPPZFNwj"/></svg></span><span class="tl" data-i18n="tab_habit" data-page-node-id="vYtOm6hCJU6q0vqnH67BD7">习惯</span></div>
+    <div class="tab" data-tab="stat" onclick="go('stat')" data-page-node-id="oNdzgBS6eLHEF2vEJzACC8"><span class="ti" data-page-node-id="iBXq55pg9ND2mkrjEDAgHB"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" data-page-node-id="KYcaaWlY6Nbok6bhkGGwQy"><path d="M4 20V4" data-page-node-id="B6KdFr7CecBAMijYfUBh4b"/><path d="M4 20h16" data-page-node-id="0C5yb3HdQuoQGeu2d5hYHq"/><rect height="5" rx="1" width="3" x="7" y="12" data-page-node-id="qovYDvjc13sNUWGn85bNLq"/><rect height="9" rx="1" width="3" x="12" y="8" data-page-node-id="yJJDFHgmUyK7dOFHVfEAsf"/><rect height="12" rx="1" width="3" x="17" y="5" data-page-node-id="pMPjzKcZlAQ5qHvCYJ8ebu"/></svg></span><span class="tl" data-i18n="tab_stat" data-page-node-id="hmluisHpUGMk5Zxja4J6r2">统计</span></div>
+    <div class="tab" data-tab="ai" onclick="go('ai')" data-page-node-id="xWc7s5FHOPsNomlPiNcqXb"><span class="ti" data-page-node-id="4iqhHI7N2IJnMsAEXmSvoL"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" data-page-node-id="XvuaY7fG1rpxZ9VdhaQGjL"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2" data-page-node-id="CSQwZq61C6uonyF8D2F37T"/><rect height="11" rx="3" width="14" x="5" y="7" data-page-node-id="MijJvygG1xfrMY1SmUYC0I"/><circle cx="9.5" cy="12.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="CZednPPyc24BNo7JE2DqWI"/><circle cx="14.5" cy="12.5" fill="currentColor" r="1.1" stroke="none" data-page-node-id="VYGIvSlFTXssVHRnTEZeHe"/><path d="M9.5 15.5h5" data-page-node-id="gc9yl08o1M8IlzbLQMwB8s"/></svg></span><span class="tl" data-page-node-id="mXboCO6Q1VyUnXLp2wAu2P">AI</span></div>
+    <div class="tab" data-tab="remind" onclick="go('remind')" data-page-node-id="CQq47hP0RbOmFJOznuRdXy"><span class="ti" data-page-node-id="VpGoXLhOWfZn3Vhyu3IKdh"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" data-page-node-id="iMYCvDmjIzixJRbu0CuCDr"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2H4.5z" data-page-node-id="oe1c4wMPpjgPwhUueAn4PV"/><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0" data-page-node-id="cjtaiCWX5vB4FPWrzb2SaL"/></svg></span><span class="tl" data-page-node-id="AE7aWvWo1rWkPSoGpiATZt">提醒</span></div>
+    <div class="tab" data-tab="mine" onclick="go('mine')" data-page-node-id="Z0pGeQrbG9EOvwVv8QcAqZ"><span class="ti" data-page-node-id="vjP69tEFsBJuNqlw45BScy"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" data-page-node-id="Cjs1PupXie7FPL2o0fxHP1"><circle cx="12" cy="8" r="3.6" data-page-node-id="1hn9PU9kz8ZDJQmVq4HZLK"/><path d="M4.5 20c0-3.9 3.4-6.4 7.5-6.4s7.5 2.5 7.5 6.4" data-page-node-id="ivejHsUg8G6y3PhWf4onbk"/></svg></span><span class="tl" data-i18n="tab_mine" data-page-node-id="OSVHhhICXaIJ5kA1JelU0v">我的</span></div>
   </div>
 
-  <div class="saved-flag" data-i18n="saved" id="savedFlag" data-page-node-id="afSqK8VBOYMEwfF3EHkxhv">✓ 已保存</div>
+  <div class="saved-flag" data-i18n="saved" id="savedFlag" data-page-node-id="G7K4K8O2cbagYbtMdGqsq4">✓ 已保存</div>
 </div>
 
 <!-- 弹层遮罩 -->
-<div class="sheet-mask" id="mask" onclick="closeSheet()" data-page-node-id="aom5xceUqbA6F4gjhYoGa5"></div>
+<div class="sheet-mask" id="mask" onclick="closeSheet()" data-page-node-id="4FTcmewYALwaBG43I46S9T"></div>
 
 <!-- 习惯编辑器 -->
-<div class="sheet" id="editorSheet" data-page-node-id="ZvyjA1gNUzViyyCyKLEaWq">
-  <div class="sheet-bar" data-page-node-id="C8dURCtcQe65nbNLTgSrTv"></div>
-  <h3 id="edTitle" data-page-node-id="gfGGbc9P6HDu51sZM3K1LR">添加习惯</h3>
-  <div class="sub" data-i18n="ed_sub" data-page-node-id="LpBAkwDIgfT8nR2E5Qucvm">给自己定一个想坚持的小目标 🌿</div>
-  <div class="field" data-page-node-id="FGUdH5EE2eEx8EghPa8oe0">
-    <label data-i18n="f_name" data-page-node-id="PRynGsGj2ptKAY0m3ITi4l">习惯名称</label>
-    <input data-i18n-ph="ph_name" id="edName" maxlength="10" placeholder="如：早起、喝水、读书、冥想…" type="text" data-page-node-id="uD0WfpHcZbcxRj88FsHDMa">
+<div class="sheet" id="editorSheet" data-page-node-id="CaE2EKUjezBCheMn7C6v6O">
+  <div class="sheet-bar" data-page-node-id="0bBqhOytnxYVRe8vDDIWzD"></div>
+  <h3 id="edTitle" data-page-node-id="SaAd7EDC9MhgpClJnAybpe">添加习惯</h3>
+  <div class="sub" data-i18n="ed_sub" data-page-node-id="KcYwB6u15F4Z2O0gic1NPu">给自己定一个想坚持的小目标 🌿</div>
+  <div class="field" data-page-node-id="ogZTQDGwsaUEHhnS5Dxux4">
+    <label data-i18n="f_name" data-page-node-id="3Ga6KRTBiWHVttRAB77LgA">习惯名称</label>
+    <input data-i18n-ph="ph_name" id="edName" maxlength="10" placeholder="如：早起、喝水、读书、冥想…" type="text" data-page-node-id="oAB9KHqMz6Ht8FLa4UcYnP">
   </div>
-  <div class="field" data-page-node-id="fEir6HH4eOzpCMpwKANrsu">
-    <label data-i18n="f_icon" data-page-node-id="ygOw9vQNHehcM88WtRRSEW">选个图标</label>
-    <div class="opt-grid" id="edIcons" data-page-node-id="eSu1ZI9x6pi1jug9bViANT"></div>
+  <div class="field" data-page-node-id="ElbUAxxlK87L8PzOVMFolG">
+    <label data-i18n="f_icon" data-page-node-id="ODSbx3VpeiOTRXHqI5IHdu">选个图标</label>
+    <div class="opt-grid" id="edIcons" data-page-node-id="NSQJ18dJtLnOTeJMuUL0SB"></div>
   </div>
-  <div class="field" data-page-node-id="bOO51rJUCDRCMvI3yGhRUp">
-    <label data-i18n="f_color" data-page-node-id="p8GJBtoybZajkvNoam77A4">主题色</label>
-    <div class="opt-grid" id="edColors" data-page-node-id="gS38cGH6G3APDuPI8oa0qk"></div>
+  <div class="field" data-page-node-id="KXX5kGwa8ehLasmiGRJjo7">
+    <label data-i18n="f_color" data-page-node-id="DW1beXsTqUoduvcz3GPQBO">主题色</label>
+    <div class="opt-grid" id="edColors" data-page-node-id="4EIas1ulHXUAFReCOzCFep"></div>
   </div>
-  <div class="field" data-page-node-id="GAdEvzxHmCsSBOP4ejod7f">
-    <label data-i18n="f_type" data-page-node-id="ylZgFBzTVEqWsI3ZxShXSs">打卡方式</label>
-    <div class="row2" id="edTypes" data-page-node-id="FrQGtBKVnufAtB7AJZXWtB"></div>
+  <div class="field" data-page-node-id="TRzHpbafWU93iR73H4tZn1">
+    <label data-i18n="f_type" data-page-node-id="j6IaZWqh0rHwQBImVOhMSf">打卡方式</label>
+    <div class="row2" id="edTypes" data-page-node-id="qV6pK3mOKXVO3Af7BcIROB"></div>
   </div>
-  <div class="row2" id="edCountFields" style="display:none" data-page-node-id="Xr8L7ogr6pnHlgcoaN7sDa">
-    <div class="field" data-page-node-id="mJiDHjhCkZbFLEpixHi3vV"><label data-i18n="f_daily_target" data-page-node-id="5RByJ2qFVI4yHCHebL6oSC">每日目标</label><input id="edTarget" max="99" min="1" type="number" value="8" data-page-node-id="JGMfjECx4oYwAnfOpX6L33"></div>
-    <div class="field" data-page-node-id="3GLcMoqaYGXt1yTfolDEAD"><label data-i18n="f_unit" data-page-node-id="QYa2GC0AMp8LMAxwXWCsJR">单位</label><input id="edUnit" maxlength="4" type="text" value="杯" data-page-node-id="BlqKspUduSUmM9u3uIT2pK"></div>
+  <div class="row2" id="edCountFields" style="display:none" data-page-node-id="YfGBrG1UosVuXJZHNDpfYU">
+    <div class="field" data-page-node-id="HlnHv3kPdhN1qszuiZYUz9"><label data-i18n="f_daily_target" data-page-node-id="kmjtuBgr7YjVlflMTapNXn">每日目标</label><input id="edTarget" max="99" min="1" type="number" value="8" data-page-node-id="QrDrp9GVzVRv8EHwSVgAA2"></div>
+    <div class="field" data-page-node-id="w6WQv4u6dpv0VEX41IGROR"><label data-i18n="f_unit" data-page-node-id="9UXXQkBbVYLbHcFJ8yyIzA">单位</label><input id="edUnit" maxlength="4" type="text" value="杯" data-page-node-id="QhkEsBFwwGg59sjkM6I3Nm"></div>
   </div>
-  <div class="field" id="edRangeField" style="display:none" data-page-node-id="YAPAJXd7Fj4BezjCB8ZsxQ">
-    <label data-i18n="f_range_target" data-page-node-id="IQKUv60DELlnxPKB4YxBY6">目标时长（小时，达到即完成）</label>
-    <input id="edRangeTarget" max="24" min="0" step="0.5" type="number" value="8" data-page-node-id="R5kTML8Ne6LAvWSH1YFKzu">
-    <div data-i18n="range_hint" style="color:var(--ink-soft); font-size:11px; margin-top:6px" data-page-node-id="XjFKrFnZzBqBS0cbUmzCz5">打卡时填开始/结束时间点，系统自动算时长（如 23:00 → 07:00 = 8 小时）</div>
+  <div class="field" id="edRangeField" style="display:none" data-page-node-id="9ZAeCWFEds0uJBVcfrBApI">
+    <label data-i18n="f_range_target" data-page-node-id="JhxQtpCPzwmY67jitjhAo4">目标时长（小时，达到即完成）</label>
+    <input id="edRangeTarget" max="24" min="0" step="0.5" type="number" value="8" data-page-node-id="TQm7V0I85BENrr2c9zAPu1">
+    <div data-i18n="range_hint" style="color:var(--ink-soft); font-size:11px; margin-top:6px" data-page-node-id="EEmbzsdlCwjGOgaoxMtilU">打卡时填开始/结束时间点，系统自动算时长（如 23:00 → 07:00 = 8 小时）</div>
   </div>
-  <div class="field" data-page-node-id="1p1ckL24nEOd5cxeAFo5GC">
-    <label data-i18n="f_size" data-page-node-id="B23Kd7fUfdVtliArtcZRUl">显示尺寸</label>
-    <div class="row2" id="edSizes" data-page-node-id="ZOkCXi2jPEDBmEXyv0YzwP"></div>
+  <div class="field" data-page-node-id="Nv7FYpOnc4iadTY0Rn93NQ">
+    <label data-i18n="f_size" data-page-node-id="YpRHFFDcdSqXPdJ0sayWiM">显示尺寸</label>
+    <div class="row2" id="edSizes" data-page-node-id="fumrvNvShZX2iV3yUYfsFR"></div>
   </div>
-  <button class="btn-primary" data-i18n="save" onclick="saveHabit()" data-page-node-id="UxYnNkNp7TYvCT2yJ21bRD">保存</button>
-  <button class="btn-ghost" data-i18n="del_habit" id="edDelBtn" onclick="delHabitFromEditor()" style="display:none" data-page-node-id="BqA6DZbHqurfuUXoXjt4mp">删除这个习惯</button>
+  <button class="btn-primary" data-i18n="save" onclick="saveHabit()" data-page-node-id="fma6l1492WrcFx0gSK9MSq">保存</button>
+  <button class="btn-ghost" data-i18n="del_habit" id="edDelBtn" onclick="delHabitFromEditor()" style="display:none" data-page-node-id="6wQVjIGd1aYq2tvm8w7YIc">删除这个习惯</button>
 </div>
 
 <!-- 昵称编辑器 -->
-<div class="sheet" id="profileSheet" data-page-node-id="Cod4Em0cUA7gFWLCXvUNUC">
-  <div class="sheet-bar" data-page-node-id="24TaGFfKe7ZqK07CTBFHuU"></div>
-  <h3 data-i18n="profile_title" data-page-node-id="Mw0xHtxwcbPL29c8CR8NAU">个人资料</h3>
-  <div class="sub" data-i18n="profile_sub" data-page-node-id="E2sfX4P4IIAh4HBVAlyzUg">起个喜欢的名字、挑张头像吧 ✨</div>
-  <div class="field" data-page-node-id="lKIXAwkHrcL8E7bxBDvEXn">
-    <label data-i18n="f_nick" data-page-node-id="tM0G1ByyOQPOSYPJbj2U5j">昵称</label>
-    <input data-i18n-ph="ph_nick" id="pfName" maxlength="12" placeholder="给自己起个名字" type="text" data-page-node-id="iRdVz2UGw8GasrUeiJTUSj">
+<div class="sheet" id="profileSheet" data-page-node-id="0Z6RHyBG2WFdJe1lfgASpV">
+  <div class="sheet-bar" data-page-node-id="2T5l4MlwBE5Rz9MyemUrCA"></div>
+  <h3 data-i18n="profile_title" data-page-node-id="bh11zIGpN85IcTUB0QVxwt">个人资料</h3>
+  <div class="sub" data-i18n="profile_sub" data-page-node-id="MtrgDMhIES8t0TXyBRdtah">起个喜欢的名字、挑张头像吧 ✨</div>
+  <div class="field" data-page-node-id="jKyDSYlnZugn4OZHpwB4Eh">
+    <label data-i18n="f_nick" data-page-node-id="f85RGij7nab3usUJg7xum4">昵称</label>
+    <input data-i18n-ph="ph_nick" id="pfName" maxlength="12" placeholder="给自己起个名字" type="text" data-page-node-id="0iGeUDrEv3omX6chZRu01a">
   </div>
-  <div class="field" data-page-node-id="Cuo8EEZhYCodnTWPDDFHQw">
-    <label data-i18n="f_ava_preview" data-page-node-id="KBlGyl3w90NhvYsNeto3vX">头像预览</label>
-    <div style="align-items:center; display:flex; gap:14px" data-page-node-id="esGZOFgOSCjywjLkAkbVTR">
-      <div id="pfPreview" style="align-items:center; background:linear-gradient(135deg,var(--accent),var(--accent-d)); background-position:center; background-size:cover; border:2px solid var(--line); border-radius:20px; display:flex; flex-shrink:0; font-size:32px; height:64px; justify-content:center; overflow:hidden; width:64px" data-page-node-id="KLUNA3BhXhOMqXKdmjPOaa"></div>
-      <div style="display:flex; flex:1; flex-direction:column; gap:8px" data-page-node-id="1xEg7EB3pQdkSJvd34WEIT">
-        <button class="btn-mini-up" onclick="document.getElementById('avatarFile').click()" data-page-node-id="YJwajofxDkmKVDwa3t0ABH"><svg fill="none" height="17" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="17" style="display:block" data-page-node-id="pIAGDlN8sWUPhqERkZ67po"><rect height="13" rx="2.5" width="18" x="3" y="7" data-page-node-id="dZIN5V9mXi40ZDRVeRb5ZM"/><path d="M8.5 7l1.5-2.5h4L15.5 7" data-page-node-id="pCQG2Bd3RlIus0Ae9KWwHG"/><circle cx="12" cy="13.5" r="3.2" data-page-node-id="VOlemAvZITjvjDonyXNQ1I"/></svg><span data-i18n="up_image" data-page-node-id="seNh1jNr0bAVjgscqtBSVp">上传图片</span></button>
-        <div style="display:flex; gap:8px" data-page-node-id="jTxMIeNmEpZxXlBjL1LCiP">
-          <input data-i18n-ph="ph_emoji" id="pfEmoji" maxlength="2" placeholder="或输入任意 emoji / 文字" type="text" style="background:#fff; border:2px solid var(--line); border-radius:11px; color:var(--ink); flex:1; font-family:inherit; font-size:15px; padding:10px 12px" data-page-node-id="DgFvlpNtMCGtlFNiIAnCdD">
-          <button class="btn-mini-up" data-i18n="use_it" onclick="applyEmojiAvatar()" style="flex:0 0 auto; padding:0 14px" data-page-node-id="7FEqB7HVDKR5B9zvJCJ9lZ">用它</button>
+  <div class="field" data-page-node-id="sncNp3LCBgZqJhekwnezM7">
+    <label data-i18n="f_ava_preview" data-page-node-id="4DqEnABHPRGS2SY0BBq2n5">头像预览</label>
+    <div style="align-items:center; display:flex; gap:14px" data-page-node-id="U0TuSlJyoJ3xsET9M6xj2L">
+      <div id="pfPreview" style="align-items:center; background:linear-gradient(135deg,var(--accent),var(--accent-d)); background-position:center; background-size:cover; border:2px solid var(--line); border-radius:20px; display:flex; flex-shrink:0; font-size:32px; height:64px; justify-content:center; overflow:hidden; width:64px" data-page-node-id="vCoQ2j3TN9RaXsU1F3DbEX"></div>
+      <div style="display:flex; flex:1; flex-direction:column; gap:8px" data-page-node-id="LZGoLypWmHUFiBl6vBx5mo">
+        <button class="btn-mini-up" onclick="document.getElementById('avatarFile').click()" data-page-node-id="d1RwI1BxC0W1vM320uPrG2"><svg fill="none" height="17" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="17" style="display:block" data-page-node-id="UQDZFoGDYWg4ZDk9EaU7lj"><rect height="13" rx="2.5" width="18" x="3" y="7" data-page-node-id="WR2552zGJCVSbvZDM5Duvh"/><path d="M8.5 7l1.5-2.5h4L15.5 7" data-page-node-id="GfD8IPk0DRXvtpiD94bzmK"/><circle cx="12" cy="13.5" r="3.2" data-page-node-id="TQW2cGi7EtYegAsREPA1xi"/></svg><span data-i18n="up_image" data-page-node-id="C70iXCa5v1mKEYOLvbWuxD">上传图片</span></button>
+        <div style="display:flex; gap:8px" data-page-node-id="6CtQDflVRYr38RReflVHfL">
+          <input data-i18n-ph="ph_emoji" id="pfEmoji" maxlength="2" placeholder="或输入任意 emoji / 文字" type="text" style="background:#fff; border:2px solid var(--line); border-radius:11px; color:var(--ink); flex:1; font-family:inherit; font-size:15px; padding:10px 12px" data-page-node-id="UCOBy0UXlskukPqQzSanEw">
+          <button class="btn-mini-up" data-i18n="use_it" onclick="applyEmojiAvatar()" style="flex:0 0 auto; padding:0 14px" data-page-node-id="Y2myCSkHdCBt9sLEoSxNGv">用它</button>
         </div>
       </div>
     </div>
-    <input accept="image/*" id="avatarFile" onchange="uploadAvatar(event)" type="file" style="display:none" data-page-node-id="x0LFY36n1VbA2LglhtLDrl">
+    <input accept="image/*" id="avatarFile" onchange="uploadAvatar(event)" type="file" style="display:none" data-page-node-id="lRT7YHLm4zAYbcogqplAqo">
   </div>
-  <div class="field" data-page-node-id="CavPpB9Uij5klaxMhXeDFc">
-    <label data-i18n="f_pick_ava" data-page-node-id="irp0oHrsrX2GvuQc46NKFI">或从下面挑一个</label>
-    <div class="opt-grid" id="pfAvatars" data-page-node-id="pEzCizEK9eJx0HgU7aeOmv"></div>
+  <div class="field" data-page-node-id="EPAi0shbFjOoDplByMEs5g">
+    <label data-i18n="f_pick_ava" data-page-node-id="LTo2UKze48QkYQILdY8niu">或从下面挑一个</label>
+    <div class="opt-grid" id="pfAvatars" data-page-node-id="X8tV1IMiE33r8MjXiZ7jgL"></div>
   </div>
-  <button class="btn-primary" data-i18n="save" onclick="saveProfile()" data-page-node-id="f2UC2YPWJ1pMHuBNEzGjyV">保存</button>
+  <button class="btn-primary" data-i18n="save" onclick="saveProfile()" data-page-node-id="1eKZxt9I9gMRgulnnfPl6h">保存</button>
 </div>
 
 <!-- 主题外观弹层 -->
-<div class="sheet" id="themeSheet" data-page-node-id="54qj2sdy4fipY0O1OAehgq">
-  <div class="sheet-bar" data-page-node-id="U4A55qnNm914Qwpyyww70L"></div>
-  <h3 data-i18n="theme_title" data-page-node-id="oeOniI9tV1FGfgAcZpC5pd">主题外观</h3>
-  <div class="sub" data-i18n="theme_sub" data-page-node-id="JF2naSUmh5JIN03CCwmHoS">换个心情，工作台也换个色 🎨</div>
-  <div class="field" data-page-node-id="lsyBx9VHmE4cF7XNNGdcyP">
-    <label data-i18n="f_bg" data-page-node-id="GibHeAiqWq11kVia6BzFuZ">背景主题</label>
-    <div class="theme-grid" id="themeBgList" data-page-node-id="Vim0yMhIHr483GduDEZZmX"></div>
-    <div class="custom-row" data-page-node-id="5tkAJ2ifKvslDcbCFZIkQJ">
-      <input id="bgColorPick" oninput="syncHex('bgHex',this.value)" type="color" value="#8A6F5C" data-page-node-id="0AJlCaF5EPzNm5AS4PhuON">
-      <input class="hex-in" id="bgHex" maxlength="7" oninput="syncPick('bgColorPick',this.value)" placeholder="#RRGGBB" type="text" value="#8A6F5C" data-page-node-id="3MAT5HL6HaALsvnoUIPJkJ">
-      <button class="cust-apply" data-i18n="use_it" onclick="applyCustomBg()" data-page-node-id="5X0ut2kBZn7kYYh5OwOQqP">用它</button>
+<div class="sheet" id="themeSheet" data-page-node-id="WQH43hDREAO1eaSzYHAgxj">
+  <div class="sheet-bar" data-page-node-id="NS35QITGIXRomyZBCCnY6I"></div>
+  <h3 data-i18n="theme_title" data-page-node-id="AMEJiR4eeH5xmW1mlJpFIN">主题外观</h3>
+  <div class="sub" data-i18n="theme_sub" data-page-node-id="I20ZtvwHqEfJtfIgjxrs9h">换个心情，工作台也换个色 🎨</div>
+  <div class="field" data-page-node-id="CoDhEWYEXVND7ClZseFj3I">
+    <label data-i18n="f_bg" data-page-node-id="6KSTzMaEE855pKcuWbM6yw">背景主题</label>
+    <div class="theme-grid" id="themeBgList" data-page-node-id="eMznFBrxcpp1MPRKIja8q6"></div>
+    <div class="custom-row" data-page-node-id="zRHD1GrDyBDaFud567PhqC">
+      <input id="bgColorPick" oninput="syncHex('bgHex',this.value)" type="color" value="#8A6F5C" data-page-node-id="tmbkbKoVcM4OzQ08mtZhcP">
+      <input class="hex-in" id="bgHex" maxlength="7" oninput="syncPick('bgColorPick',this.value)" placeholder="#RRGGBB" type="text" value="#8A6F5C" data-page-node-id="cQPNDsgBKRhQz3NNXehjXy">
+      <button class="cust-apply" data-i18n="use_it" onclick="applyCustomBg()" data-page-node-id="j8BdC98TTTPIgpfUCSoxAT">用它</button>
     </div>
   </div>
-  <div class="field" data-page-node-id="GsD3usGfoB6gEAXE50rDnf">
-    <label data-i18n="f_texture" data-page-node-id="pNIK0AiBh5TfVtFji4SpZm">背景纹理</label>
-    <div class="row2" id="themeTexture" data-page-node-id="FsVKHQKMEPqpdWCestUwyc"></div>
+  <div class="field" data-page-node-id="NiFRTsxboHgUIC2TDbcHvM">
+    <label data-i18n="f_texture" data-page-node-id="zI6qAvy4Kz0fu6Pxx7pKV5">背景纹理</label>
+    <div class="row2" id="themeTexture" data-page-node-id="aM5EmFQEzcWBwaoJeSvn7K"></div>
   </div>
-  <div class="field" data-page-node-id="kVERJ9IJ6ocXAPYfyFRoJk">
-    <label data-i18n="f_accent" data-page-node-id="HED8Z0TrKw1k16xKZDyvvw">强调 / 胶囊按钮色</label>
-    <div class="opt-grid" id="themeAccentList" data-page-node-id="MqsyM9KfHCGSjCZI1HAV4B"></div>
-    <div class="custom-row" data-page-node-id="qqZeQ0GgiEUVP5BNRShaiW">
-      <input id="acColorPick" oninput="syncHex('acHex',this.value)" type="color" value="#D6A06A" data-page-node-id="GnRCOrKhsNulrBlb8q5wjC">
-      <input class="hex-in" id="acHex" maxlength="7" oninput="syncPick('acColorPick',this.value)" placeholder="#RRGGBB" type="text" value="#D6A06A" data-page-node-id="EFrshqgu4nMkoiLDvKPecB">
-      <button class="cust-apply" data-i18n="use_it" onclick="applyCustomAccent()" data-page-node-id="Ba0GIA9WjUjSEMaFY0sK2g">用它</button>
+  <div class="field" data-page-node-id="qeoCe4iWWCLQLYFyk1raFg">
+    <label data-i18n="f_style" data-page-node-id="8jpZdkaEa4N0zArNY2gtLy">界面风格</label>
+    <div class="style-grid" id="themeStyleList" data-page-node-id="QBMwWJwFTXklO4kEY8xqAz"></div>
+  </div>
+  <div class="field" data-page-node-id="KAZPngBLAO3a0mPMQy26cA">
+    <label data-i18n="f_accent" data-page-node-id="uX2zEU1DHUB6ZWTlICIHMA">强调 / 胶囊按钮色</label>
+    <div class="opt-grid" id="themeAccentList" data-page-node-id="weoF9MjqqE0l78vHZAmEW7"></div>
+    <div class="custom-row" data-page-node-id="QLnyJNZX7LiJO7gKdcdISF">
+      <input id="acColorPick" oninput="syncHex('acHex',this.value)" type="color" value="#D6A06A" data-page-node-id="WRSMUMJD5TIPQRc1I5yigc">
+      <input class="hex-in" id="acHex" maxlength="7" oninput="syncPick('acColorPick',this.value)" placeholder="#RRGGBB" type="text" value="#D6A06A" data-page-node-id="PK8e5419Wq9vcDmA4ENGpO">
+      <button class="cust-apply" data-i18n="use_it" onclick="applyCustomAccent()" data-page-node-id="W9bappA24hGeBqJPGlUB99">用它</button>
     </div>
   </div>
-  <button class="btn-primary" data-i18n="done" onclick="closeSheet()" data-page-node-id="tFyyXfG9CMHBlHvjHvwVSv">完成</button>
+  <button class="btn-primary" data-i18n="done" onclick="closeSheet()" data-page-node-id="ByDeRnoACmvnXTWwh2qDrG">完成</button>
 </div>
 
-<div class="toast-wrap" id="toastWrap" data-page-node-id="ADFuWeK2ITwXpNgZdXX57f"></div>
+<div class="toast-wrap" id="toastWrap" data-page-node-id="XA0pAQIkXnTzPEQ3hOAh3i"></div>
 
 <script>
 /* ============================================================
@@ -934,7 +951,7 @@ const I18N={
     f_ava_preview:'头像预览', up_image:'上传图片', ph_emoji:'或输入任意 emoji / 文字', use_it:'用它',
     f_pick_ava:'或从下面挑一个',
     /* 主题弹层 */
-    theme_title:'主题外观', theme_sub:'换个心情，工作台也换个色 🎨',
+    theme_title:'主题外观', theme_sub:'换个心情，工作台也换个色 🎨', f_style:'界面风格',
     f_bg:'背景主题', f_texture:'背景纹理', tex_dots:'波点底', tex_solid:'纯色底',
     f_accent:'强调 / 胶囊按钮色', done:'完成',
     /* toast / 交互 */
@@ -1015,7 +1032,7 @@ const I18N={
     f_nick:'Nickname', ph_nick:'Give yourself a name',
     f_ava_preview:'Avatar preview', up_image:'Upload image', ph_emoji:'Or type any emoji / text', use_it:'Use it',
     f_pick_ava:'Or pick one below',
-    theme_title:'Theme', theme_sub:'New mood, new colors for your workbench 🎨',
+    theme_title:'Theme', theme_sub:'New mood, new colors for your workbench 🎨', f_style:'Style',
     f_bg:'Background theme', f_texture:'Background texture', tex_dots:'Polka dots', tex_solid:'Solid',
     f_accent:'Accent / button color', done:'Done',
     t_name_first:'Give your habit a name 🌱', t_updated:'✅ Updated', t_added:'✅ New habit added — go check in',
@@ -1945,6 +1962,14 @@ function openTheme(){
   document.getElementById('themeTexture').innerHTML=`
     <div class="theme-sw ${t.dots?'sel':''}" style="background:var(--coffee);background-image:radial-gradient(rgba(245,239,230,.28) 1.6px,transparent 2px);background-size:14px 14px;" onclick="pickDots(true)"><span class="tsw-name">${T('tex_dots')}</span></div>
     <div class="theme-sw ${!t.dots?'sel':''}" style="background:var(--coffee);" onclick="pickDots(false)"><span class="tsw-name">${T('tex_solid')}</span></div>`;
+  // 界面风格
+  const curStyle=(t.style||'soft');
+  document.getElementById('themeStyleList').innerHTML=STYLES.map(s=>
+    `<div class="style-sw ${s.id===curStyle?'sel':''}" onclick="pickStyle('${s.id}')">
+       <span class="ss-thumb" style="color:var(--accent-d)">${STYLE_THUMB[s.id]}</span>
+       <span class="ss-name">${s.name}</span>
+     </div>`
+  ).join('');
   // 强调色圆点
   document.getElementById('themeAccentList').innerHTML=ACCENTS.map(a=>
     `<div class="icon-opt ${a.id===t.accent?'sel':''}" style="background:linear-gradient(135deg,${a.c},${a.d});border-radius:50%;" onclick="pickAccent('${a.id}')"></div>`
@@ -1957,6 +1982,46 @@ function openTheme(){
   if(bp)bp.value=curBg.toUpperCase(); if(bh)bh.value=curBg.toUpperCase();
   if(ap)ap.value=curAc.toUpperCase(); if(ah)ah.value=curAc.toUpperCase();
   openSheet('themeSheet');
+}
+/* —— 界面风格定义（与配色正交，可自由组合） —— */
+var STYLES=[
+  {id:'soft',  name:'柔和', r:'20px',rs:'15px',rxs:'11px', bw:'0px',   sd:'0 4px 18px rgba(40,28,20,.10)', gap:'12px'},
+  {id:'minimal',name:'简约',r:'10px',rs:'9px', rxs:'7px',  bw:'1px',   sd:'none',                          gap:'10px'},
+  {id:'block', name:'方块', r:'4px', rs:'4px', rxs:'4px',  bw:'1.6px', sd:'none',                          gap:'10px'},
+  {id:'card',  name:'卡片', r:'26px',rs:'20px',rxs:'14px', bw:'0px',   sd:'0 10px 30px rgba(40,28,20,.16)',gap:'14px'}
+];
+var STYLE_THUMB={
+  soft:   '<svg viewBox="0 0 46 34"><rect x="4" y="4" width="38" height="26" rx="8" fill="currentColor" opacity=".22"/><rect x="9" y="9" width="28" height="7" rx="3.5" fill="currentColor"/><rect x="9" y="20" width="16" height="5" rx="2.5" fill="currentColor" opacity=".6"/></svg>',
+  minimal:'<svg viewBox="0 0 46 34"><rect x="4" y="4" width="38" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="9" y="10" width="24" height="4" rx="1" fill="currentColor"/><rect x="9" y="19" width="14" height="3" rx="1" fill="currentColor" opacity=".55"/></svg>',
+  block:  '<svg viewBox="0 0 46 34"><rect x="4" y="4" width="17" height="26" rx="1.5" fill="currentColor" opacity=".3"/><rect x="25" y="4" width="17" height="26" rx="1.5" fill="currentColor" opacity=".3"/><rect x="8" y="9" width="9" height="9" rx="1" fill="currentColor"/><rect x="29" y="9" width="9" height="9" rx="1" fill="currentColor"/></svg>',
+  card:   '<svg viewBox="0 0 46 34"><rect x="7" y="6" width="32" height="22" rx="10" fill="currentColor" opacity=".22"/><rect x="7" y="6" width="32" height="22" rx="10" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".5"/><rect x="13" y="13" width="20" height="5" rx="4" fill="currentColor"/></svg>'
+};
+function pickStyle(id){S().theme.style=id;applyTheme();save();openTheme();}
+function currentStyle(){
+  var t=S().theme;
+  var s=STYLES.filter(function(x){return x.id===t.style;})[0];
+  return s||STYLES[0];
+}
+function applyStyle(){
+  var s=currentStyle(), rs=document.documentElement.style;
+  rs.setProperty('--r',s.r);
+  rs.setProperty('--rs',s.rs);
+  rs.setProperty('--rxs',s.rxs);
+  rs.setProperty('--gap-card',s.gap);
+  /* 描边：仅简约/方块风格显示，颜色随主题明暗自适配 */
+  if(s.bw!=='0px'){
+    var t=S().theme;
+    var isDk=(t.bg==='custom'&&t.customBg)?isDarkHex(t.customBg):((TMAP[t.bg]||TMAP.mist).dark!==false);
+    var st=document.getElementById('styleVars');
+    if(!st){st=document.createElement('style');st.id='styleVars';document.head.appendChild(st);}
+    st.textContent=':root{--bw:'+s.bw+';--bc:'+(isDk?'rgba(245,239,230,.16)':'rgba(59,46,40,.14)')+'}';
+  }else{
+    var st2=document.getElementById('styleVars');
+    if(st2)st2.textContent=':root{--bw:0px;--bc:transparent}';
+  }
+  rs.setProperty('--shadow-card',s.sd);
+  rs.setProperty('--shadow', s.sd==='none'?'0 2px 8px rgba(30,20,15,.06)':s.sd);
+  rs.setProperty('--shadow-s', s.sd==='none'?'0 1px 4px rgba(30,20,15,.05)':s.sd);
 }
 function pickThemeBg(id){S().theme.bg=id;applyTheme();save();openTheme();}
 function pickDots(on){S().theme.dots=on;applyTheme();save();openTheme();}
@@ -2111,6 +2176,8 @@ function applyTheme(){
   rs.setProperty('--tile',tileBase);
   rs.setProperty('--tile-2',tile2);
   rs.setProperty('--tile-3',tile3);
+  // ==== 界面风格（圆角/阴影/描边/间距）叠加 ====
+  applyStyle();
 }
 
 
