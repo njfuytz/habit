@@ -2553,17 +2553,51 @@ var AI_SYS_CHAT='你是用户的私人习惯助手，说话温和、直接、简
   '你可以看到他全部的习惯打卡数据。回答时尽量引用具体数字，给的建议要具体可执行。'+
   '如果用户问的跟习惯无关，也可以正常回答，但尽量联系到他的习惯上来。';
 var AI_DEF={baseUrl:'https://api.deepseek.com',model:'deepseek-flash',key:'',persona:'',sysDiag:'',sysChat:''};
+/* ---------- 按服务商记忆 Key ---------- */
+/* 同一台设备换服务商时，key 不该被上一个覆盖：以 Base URL 为键各存一份。
+   兼容旧数据：老版本只有一个 key，首次读取时自动并入当前 baseUrl 名下。 */
+function __normBase(u){
+  return String(u||'').trim().replace(/\/+$/,'').toLowerCase();
+}
+function keyVault(){
+  var st=S();
+  if(!st.aiKeys||typeof st.aiKeys!=='object'||Array.isArray(st.aiKeys))st.aiKeys={};
+  return st.aiKeys;
+}
+function getKeyFor(baseUrl){
+  var v=keyVault();
+  var k=v[__normBase(baseUrl)];
+  if(k)return k;
+  /* 旧数据迁移：只有一个 key 且 baseUrl 对得上当前配置，就用它 */
+  var c={};
+  try{ if(S().ai&&typeof S().ai==='object')c=S().ai; }catch(e){}
+  if(c.key&&__normBase(c.baseUrl)===__normBase(baseUrl))return c.key;
+  return '';
+}
+function setKeyFor(baseUrl,key){
+  var b=__normBase(baseUrl);
+  if(!b)return;
+  var v=keyVault();
+  if(key)v[b]=String(key).slice(0,500);
+  else delete v[b];
+}
 function aiCfg(){
   var c={};
   try{
     var st=S(); if(st.ai&&typeof st.ai==='object')c=st.ai;
   }catch(e){c={};}
-  return {baseUrl:c.baseUrl||AI_DEF.baseUrl,model:c.model||AI_DEF.model,key:c.key||'',persona:c.persona||'',
+  var base=c.baseUrl||AI_DEF.baseUrl;
+  /* key 优先取「该服务商名下」的，退回旧的单 key 字段 */
+  var key=getKeyFor(base)||c.key||'';
+  return {baseUrl:base,model:c.model||AI_DEF.model,key:key,persona:c.persona||'',
           sysDiag:c.sysDiag||'',sysChat:c.sysChat||''};
 }
 function saveAiCfg(o){
-  S().ai={baseUrl:o.baseUrl,model:o.model,key:o.key,persona:o.persona,
-          sysDiag:o.sysDiag||'',sysChat:o.sysChat||''};
+  var st=S();
+  st.ai={baseUrl:o.baseUrl,model:o.model,key:o.key,persona:o.persona,
+         sysDiag:o.sysDiag||'',sysChat:o.sysChat||''};
+  /* 同时写入该服务商名下，换回来时能自动带出 */
+  setKeyFor(o.baseUrl,o.key);
   try{localStorage.setItem(LS_KEY,JSON.stringify(data))}catch(e){}
 }
 function aiReady(){var c=aiCfg();return !!(c.key&&c.baseUrl&&c.model);}
@@ -3024,7 +3058,7 @@ function openAiCfg(){
   '<div class="field"><label>快捷选择</label><div class="repeat-chips" id="aiPresets">'+
     AI_PRESETS.map(function(p,i){return '<div class="rc" onclick="pickPreset('+i+')">'+p.n+'</div>';}).join('')+
   '</div></div>'+
-  '<div class="field"><label>接口地址（Base URL）</label><input id="cfgUrl" type="text" placeholder="https://api.deepseek.com" value="'+escAttr(c.baseUrl)+'"></div>'+
+  '<div class="field"><label>接口地址（Base URL）</label><input id="cfgUrl" type="text" placeholder="https://api.deepseek.com" value="'+escAttr(c.baseUrl)+'" onblur="__syncKeyOnBaseChange()"></div>'+
   '<div class="field"><label>模型名</label>'+
     '<div style="display:flex;gap:10px;align-items:stretch">'+
       '<input id="cfgModel" type="text" placeholder="deepseek-flash" value="'+escAttr(c.model)+'" style="flex:1;min-width:0">'+
@@ -3058,14 +3092,40 @@ function pickPreset(i){
   document.getElementById('cfgUrl').value=p.u;
   /* 有兜底模型名就填；没有则清空，引导用户点「拉取」拿真实名，避免填一个过期的 */
   document.getElementById('cfgModel').value=p.m||'';
+  /* 这家如果之前存过 key，自动带出来，不用重新粘贴 */
+  var kEl=document.getElementById('cfgKey');
+  if(kEl){
+    var saved=getKeyFor(p.u);
+    kEl.value=saved||'';
+  }
   var list=document.getElementById('cfgModelList');
   if(list){list.style.display='none';list.innerHTML='';}
   var tip=document.getElementById('cfgModelTip');
   if(tip){
+    var hasKey=!!getKeyFor(p.u);
     tip.style.color='var(--ink-mute)';
-    tip.textContent=p.m?'已填入兜底模型名（可能不是最新），建议点「拉取」核对这家当前真实的模型名。'
-                      :'这家没有兜底模型名，填好 Key 后点「拉取」，或手动填写。';
+    if(hasKey){
+      tip.textContent='已带出这家上次填的 Key，模型名建议点「拉取」核对最新。';
+    }else{
+      tip.textContent=p.m?'已填入兜底模型名（可能不是最新），建议点「拉取」核对这家当前真实的模型名。'
+                        :'这家没有兜底模型名，填好 Key 后点「拉取」，或手动填写。';
+    }
   }
+}
+/* 手动改 Base URL 后：如果这家存过 key 就自动带出，否则保留当前输入 */
+function __syncKeyOnBaseChange(){
+  try{
+    var u=(document.getElementById('cfgUrl').value||'').trim();
+    if(!u)return;
+    var saved=getKeyFor(u);
+    if(!saved)return;
+    var kEl=document.getElementById('cfgKey');
+    if(kEl&&kEl.value!==saved){
+      kEl.value=saved;
+      var tip=document.getElementById('cfgModelTip');
+      if(tip){tip.style.color='var(--sage)';tip.textContent='已带出这家的 Key。';}
+    }
+  }catch(e){}
 }
 /* ---------- 拉取模型列表（GET {BaseURL}/models，OpenAI 兼容协议） ---------- */
 var __fetchModelsBusy=false;
@@ -3300,6 +3360,8 @@ function exportBackup(){
   try{
     var safeData=JSON.parse(JSON.stringify(data));
     if(safeData.settings&&safeData.settings.ai)delete safeData.settings.ai.key;
+    /* 按服务商分存的 Key 也要一并剔除，否则备份文件里会带出全部密钥 */
+    if(safeData.settings)delete safeData.settings.aiKeys;
     var payload={__app:'habit-checkin',__ver:2,__at:new Date().toISOString(),__note:'为保护隐私，备份不包含 AI API Key',data:safeData};
     var blob=new Blob([JSON.stringify(payload)],{type:'application/json;charset=utf-8'});
     var a=document.createElement('a');
@@ -3418,6 +3480,16 @@ function normalizeBackup(d,keepAiKey,strict){
     }
     if(Array.isArray(d.settings.reminds))out.settings.reminds=d.settings.reminds.slice(0,100).filter(function(r){return r&&typeof r==='object';}).map(function(r){return {time:/^([01]\d|2[0-3]):[0-5]\d$/.test(r.time||'')?r.time:'08:00',text:cleanUserText(r.text||'提醒',40),repeat:['daily','weekday','weekend'].indexOf(r.repeat)>=0?r.repeat:'daily',on:r.on!==false};});
     if(d.settings.ai&&typeof d.settings.ai==='object')out.settings.ai={baseUrl:String(d.settings.ai.baseUrl||'').slice(0,300),model:String(d.settings.ai.model||'').slice(0,100),key:keepAiKey?String(d.settings.ai.key||'').slice(0,500):'',persona:String(d.settings.ai.persona||'').slice(0,300),sysDiag:String(d.settings.ai.sysDiag||'').slice(0,4000),sysChat:String(d.settings.ai.sysChat||'').slice(0,4000)};
+    /* 按服务商分存的 Key：同样按白名单清洗（每个 URL 最多 300 字符、key 最多 500） */
+    if(d.settings.aiKeys&&typeof d.settings.aiKeys==='object'&&!Array.isArray(d.settings.aiKeys)){
+      var kv={},kn=0;
+      Object.keys(d.settings.aiKeys).forEach(function(k){
+        if(kn>=20)return;
+        var kk=String(k).slice(0,300),vv=String(d.settings.aiKeys[k]||'').slice(0,500);
+        if(kk&&vv){kv[kk]=vv;kn++;}
+      });
+      if(kn)out.settings.aiKeys=kv;
+    }
   }
   if(d.meta&&typeof d.meta==='object'){
     out.meta.sampleLoaded=!!d.meta.sampleLoaded;
