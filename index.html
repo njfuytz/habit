@@ -565,6 +565,12 @@ body{
 .chat-bar input:focus{border-color:var(--accent)}
 .chat-bar button{border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;padding:0 18px;border-radius:var(--rs);cursor:pointer;min-height:44px}
 .chat-bar button:disabled{opacity:.5}
+/* 聊天工具条：新对话 / 保存 / 历史 */
+.chat-tools{display:flex;gap:8px;flex-wrap:wrap;padding:0 0 8px}
+.chat-tool-btn{border:1px solid var(--tile-3);background:var(--tile-2);color:var(--ink-soft);font-size:12.5px;padding:7px 12px;border-radius:999px;cursor:pointer;font-family:inherit;min-height:34px}
+.chat-tool-btn:active{transform:scale(.97)}
+.chat-tool-btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chat-tool-btn:disabled{opacity:.45;cursor:default}
 
 .remind-tip{font-size:12.5px;line-height:1.8;color:var(--ink-soft);background:var(--gold-t);border:1px solid var(--gold);border-radius:var(--rs);padding:11px 13px;margin-bottom:12px}
 .remind-tip b{color:var(--ink)}
@@ -721,6 +727,11 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:
 
       <!-- 聊天区 -->
       <div class="sec-title"><span class="st-em"><svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" style="display:block"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1-4.5A8 8 0 1 1 21 12z"/></svg></span><h3>跟它聊聊</h3><span class="st-more" id="aiModelTip"></span></div>
+      <div class="chat-tools">
+        <button type="button" class="chat-tool-btn" onclick="newChat()">＋ 新对话</button>
+        <button type="button" class="chat-tool-btn" id="chatSaveBtn" onclick="toggleChatSave()">保存</button>
+        <button type="button" class="chat-tool-btn" onclick="openChatArchive()">历史</button>
+      </div>
       <div class="chat-wrap" id="chatWrap"></div>
       <div class="chat-quick" id="chatQuick"></div>
       <div class="chat-bar">
@@ -2650,8 +2661,35 @@ function runDiagnose(){
 }
 
 /* ---------- 聊天 ---------- */
+/* chatHistory：当前这次对话（内存，不存盘，关掉页面即清空）
+   chatSaved  ：用户点「保存」后写进 data.chatLogs 的副本，与模型配置无关，换服务商不影响 */
 var chatHistory=[];
 var QUICK_ASKS=['我这周表现怎么样？','我哪里做得最差？','帮我把目标调得现实一点','给我一句今天能执行的建议'];
+var __chatSaving=false;
+
+function chatLogs(){
+  if(!data||typeof data!=='object')return [];
+  if(!Array.isArray(data.chatLogs))data.chatLogs=[];
+  return data.chatLogs;
+}
+/* 聊天存档专用写盘：不走 save()，避免触发打卡保存的视觉反馈和 habits 覆盖 */
+function __saveChatData(){
+  try{localStorage.setItem(LS_KEY,JSON.stringify(data))}catch(e){}
+}
+/* 只存「用户+AI」的问答，系统提示（正在想…/出错）不入库 */
+function chatRealMsgs(){
+  return chatHistory.filter(function(m){return m&&m.role&&m.content&&m.role!=='sys';});
+}
+function renderChatHistory(){
+  var w=document.getElementById('chatWrap');
+  if(!w)return;
+  w.innerHTML='';
+  chatHistory.forEach(function(m){
+    if(m.role==='user')pushMsg('user',m.content);
+    else if(m.role==='assistant')pushMsg('ai',m.content);
+    else if(m.role==='sys')pushMsg('sys',m.content);
+  });
+}
 function pushMsg(role,text){
   var w=document.getElementById('chatWrap');
   var d=document.createElement('div');
@@ -2671,6 +2709,226 @@ function quickAsk(q){
   document.getElementById('chatInput').value=q;
   sendChat();
 }
+/* 新对话：先把当前对话自动存档，再清空上下文（存档进「历史」，可手动删） */
+function newChat(){
+  if(!chatHistory.length){toast('当前就是新对话','good');return;}
+  var n=chatRealMsgs().length;
+  var saved=__saveChatRecord(true);
+  /* 关键：把刚存的这条标记为已收口，否则新对话第一次保存会覆盖它 */
+  if(saved){
+    var logs=chatLogs();
+    if(logs.length)logs[logs.length-1].open=false;
+    /* 已经进了历史，草稿就没用了，清掉避免下次重复提示 */
+    if(data.chatDraft)delete data.chatDraft;
+    __saveChatData();
+  }
+  chatHistory=[];
+  renderChatHistory();
+  renderQuickAsks();
+  updateChatSaveBtn();
+  __removeDraftTip();
+  if(saved)toast('已存 '+n+' 条到历史，开始新对话','good');
+  else toast('已开始新对话','good');
+}
+function updateChatSaveBtn(){
+  var b=document.getElementById('chatSaveBtn');
+  if(!b)return;
+  var n=chatRealMsgs().length;
+  b.textContent='保存'+(n?('（'+n+'）'):'');
+  b.disabled=!n;
+}
+/* ---------- 草稿：页面隐藏/关闭时自动留底，防止忘点「新对话」丢对话 ---------- */
+/* 存进 data.chatDraft（独立字段，不占历史列表）。下次打开 AI 页时若有草稿，询问是否恢复。 */
+var __draftTimer=null;
+function __saveChatDraft(){
+  try{
+    var msgs=chatRealMsgs();
+    /* 当前没有内容时：不要删已有草稿！
+       页面隐藏/关闭时 chatHistory 可能已被清空，此时删草稿会丢掉用户真正想恢复的对话。
+       草稿只由「恢复/丢弃/保存/新对话」这几个明确动作清除。 */
+    if(!msgs.length)return;
+    var head=msgs[0];
+    var d=data.chatDraft;
+    /* 内容没变化就不重复写盘 */
+    if(d&&Array.isArray(d.msgs)&&d.msgs.length===msgs.length){
+      var same=d.msgs[d.msgs.length-1]&&head&&d.msgs[0]&&d.msgs[0].content===head.content&&d.msgs[d.msgs.length-1].content===msgs[msgs.length-1].content;
+      if(same)return;
+    }
+    data.chatDraft={
+      at:Date.now(),
+      date:todayStr(),
+      time:new Date().toTimeString().slice(0,5),
+      model:(aiCfg().model||''),
+      msgs:msgs.map(function(m){return {role:m.role,content:m.content};})
+    };
+    __saveChatData();
+  }catch(e){/* 自动存档失败绝不能影响页面 */}
+}
+/* 页面隐藏/关闭时兜底保存：visibilitychange 在 iOS 切后台/锁屏时最可靠，pagehide 覆盖直接关闭 */
+function __installChatDraftHooks(){
+  var fire=function(){ __saveChatDraft(); };
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='hidden')fire();
+  });
+  window.addEventListener('pagehide',fire);
+  window.addEventListener('beforeunload',fire);
+}
+/* 打开 AI 页时检查有没有未恢复的草稿 */
+function __checkChatDraft(){
+  try{
+    var d=data&&data.chatDraft;
+    if(!d||!Array.isArray(d.msgs)||!d.msgs.length)return;
+    /* 当前已有对话就不打扰 */
+    if(chatHistory.length)return;
+    /* 草稿内容与已有存档完全重复 → 说明已存过，直接清掉 */
+    var logs=chatLogs();
+    var dup=logs.some(function(L){
+      if(!L||!Array.isArray(L.msgs)||L.msgs.length!==d.msgs.length)return false;
+      return L.msgs[0].content===d.msgs[0].content&&L.msgs[L.msgs.length-1].content===d.msgs[d.msgs.length-1].content;
+    });
+    if(dup){delete data.chatDraft;__saveChatData();return;}
+    /* 弹提示：恢复 or 丢弃 */
+    var n=d.msgs.length;
+    var box=document.createElement('div');
+    box.id='draftTip';
+    box.style.cssText='margin:0 0 10px;padding:12px 14px;border-radius:12px;background:var(--accent-t);border:1px solid var(--tile-3);font-size:12.5px;line-height:1.7;color:var(--ink)';
+    box.innerHTML='<b>上次的对话还没保存</b>（'+escAttr(d.date)+' '+escAttr(d.time||'')+'，'+n+' 条）<div style="display:flex;gap:8px;margin-top:8px">'+
+      '<button type="button" class="chat-tool-btn" onclick="__restoreChatDraft()">恢复</button>'+
+      '<button type="button" class="chat-tool-btn" onclick="__dropChatDraft()">丢弃</button></div>';
+    var wrap=document.getElementById('chatWrap');
+    if(wrap&&wrap.parentNode)wrap.parentNode.insertBefore(box,wrap);
+  }catch(e){}
+}
+function __restoreChatDraft(){
+  __removeDraftTip();
+  try{
+    var d=data&&data.chatDraft;
+    if(!d||!Array.isArray(d.msgs))return;
+    chatHistory=d.msgs.map(function(m){return {role:m.role,content:m.content};});
+    renderChatHistory();
+    updateChatSaveBtn();
+    toast('已恢复上次对话，记得点「保存」或「新对话」','good');
+  }catch(e){}
+}
+function __dropChatDraft(){
+  __removeDraftTip();
+  try{ if(data.chatDraft){delete data.chatDraft;__saveChatData();} }catch(e){}
+  toast('已丢弃上次的对话','good');
+}
+function __removeDraftTip(){
+  var t=document.getElementById('draftTip');
+  if(t&&t.parentNode)t.parentNode.removeChild(t);
+}
+/* 保存当前对话到本地存档（可重复保存，同一会话覆盖，不产生重复） */
+/* 存档核心：把当前对话写入 data.chatLogs，返回是否成功
+   覆盖条件：最后一条 open=true 且同一天且内容前缀一致（同一段对话继续聊）
+   否则一律新建 —— 避免「新对话」自动存档后被下一段覆盖 */
+function __saveChatRecord(silent){
+  var msgs=chatRealMsgs();
+  if(!msgs.length)return false;
+  try{
+    var logs=chatLogs();
+    var today=todayStr();
+    /* 优先找「当前接回中的那条」（open=true 且内容前缀匹配），找不到再退回最后一条 */
+    var cur=null,curIdx=-1;
+    for(var i=logs.length-1;i>=0;i--){
+      var L=logs[i];
+      if(!L||!L.open||!Array.isArray(L.msgs)||!L.msgs.length)continue;
+      var head=L.msgs[0],now=msgs[0];
+      if(head&&now&&head.role===now.role&&head.content===now.content){cur=L;curIdx=i;break;}
+    }
+    var rec={
+      id:'c'+Date.now(),
+      date:today,
+      time:new Date().toTimeString().slice(0,5),
+      model:(aiCfg().model||''),
+      msgs:msgs.map(function(m){return {role:m.role,content:m.content};}),
+      open:true
+    };
+    if(cur){
+      rec.id=cur.id;rec.date=cur.date||today;rec.time=cur.time||rec.time;
+      logs[curIdx]=rec;
+    }else{
+      logs.push(rec);
+    }
+    /* 存档上限 50 条，超出丢最旧 */
+    if(logs.length>50)data.chatLogs=logs.slice(-50);
+    __saveChatData();
+    updateChatSaveBtn();
+    if(!silent)toast('已保存 '+msgs.length+' 条问答','good');
+    return true;
+  }catch(e){
+    if(!silent)toast('保存失败：'+e.message,'bad');
+    return false;
+  }
+}
+function toggleChatSave(){
+  var msgs=chatRealMsgs();
+  if(!msgs.length){toast('还没有可保存的对话','bad');return;}
+  if(__chatSaving)return;
+  __chatSaving=true;
+  try{
+    if(__saveChatRecord(false)){
+      /* 已存进历史，草稿清掉 */
+      if(data.chatDraft)delete data.chatDraft;
+      __saveChatData();
+      __removeDraftTip();
+    }
+  }
+  finally{ __chatSaving=false; }
+}
+/* 历史存档弹层 */
+function openChatArchive(){
+  var logs=chatLogs().slice().reverse();
+  var html='<h3 style="margin:0 0 4px">聊天记录</h3>'+
+    '<div class="sub" style="font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;line-height:1.7">点「继续」把某天的对话接回来接着聊；「删除」只删存档，不影响打卡数据。</div>';
+  if(!logs.length){
+    html+='<div style="text-align:center;color:var(--ink-mute);font-size:13px;padding:28px 0">还没有保存过对话。<br>聊完之后点「保存」就会出现在这里。</div>';
+  }else{
+    html+='<div style="display:flex;flex-direction:column;gap:10px">'+logs.map(function(r){
+      var idx=data.chatLogs.indexOf(r);
+      var preview=(r.msgs&&r.msgs.length?r.msgs[0].content:'').slice(0,40);
+      return '<div class="card" style="padding:12px 14px">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
+          '<b style="font-size:13px;color:var(--ink)">'+escAttr(r.date)+' '+escAttr(r.time||'')+'</b>'+
+          '<span style="font-size:11px;color:var(--ink-mute)">'+(r.msgs?r.msgs.length:0)+' 条'+(r.model?(' · '+escAttr(String(r.model).slice(0,24))):'')+'</span>'+
+        '</div>'+
+        '<div style="font-size:12px;color:var(--ink-soft);line-height:1.6;margin-bottom:10px;word-break:break-all">'+escAttr(preview)+(preview.length>=40?'…':'')+'</div>'+
+        '<div style="display:flex;gap:8px">'+
+          '<button type="button" class="chat-tool-btn" onclick="resumeChat('+idx+')">继续</button>'+
+          '<button type="button" class="chat-tool-btn" onclick="delChatLog('+idx+')">删除</button>'+
+        '</div>'+
+      '</div>';
+    }).join('')+'</div>';
+  }
+  openGenericSheet(html);
+}
+/* 接回某段存档：把它载入当前对话，可继续追问 */
+function resumeChat(idx){
+  var logs=chatLogs();
+  var r=logs[idx];
+  if(!r)return;
+  chatHistory=(r.msgs||[]).map(function(m){return {role:m.role,content:m.content};});
+  /* 标记为已接回，之后「保存」覆盖这条而不是新建 */
+  r.open=true;
+  logs.forEach(function(x,i){if(i!==idx)x.open=false;});
+  __saveChatData();
+  renderChatHistory();
+  renderQuickAsks();
+  updateChatSaveBtn();
+  closeSheet();
+  toast('已接回 '+r.date+' 的对话，可以接着聊','good');
+}
+function delChatLog(idx){
+  var logs=chatLogs();
+  if(!logs[idx])return;
+  if(!confirm('删除这条聊天记录？删了找不回来。'))return;
+  logs.splice(idx,1);
+  __saveChatData();
+  closeSheet();
+  openChatArchive();
+  toast('已删除','good');
+}
 function sendChat(){
   var inp=document.getElementById('chatInput');
   var q=(inp.value||'').trim();
@@ -2679,6 +2937,7 @@ function sendChat(){
   inp.value='';
   pushMsg('user',q);
   chatHistory.push({role:'user',content:q});
+  updateChatSaveBtn();
   var btn=document.getElementById('chatSend');
   btn.disabled=true;btn.textContent='…';
   var thinking=pushMsg('sys','它正在想…');
@@ -2686,7 +2945,9 @@ function sendChat(){
   var sys=(cc.sysChat&&cc.sysChat.trim()?cc.sysChat.trim():AI_SYS_CHAT)+
     (cc.persona?('额外设定：'+cc.persona):'')+
     '\n\n【用户当前数据】\n'+buildDataContext();
-  aiChat(chatHistory.slice(-10),sys,function(err,txt){
+  /* 只把真实问答发出去，过滤掉 sys 提示 */
+  var sendMsgs=chatHistory.filter(function(m){return m.role==='user'||m.role==='assistant';}).slice(-10);
+  aiChat(sendMsgs,sys,function(err,txt){
     btn.disabled=false;btn.textContent='发送';
     if(thinking&&thinking.parentNode)thinking.parentNode.removeChild(thinking);
     if(err){
@@ -2694,7 +2955,9 @@ function sendChat(){
     }else{
       pushMsg('ai',txt);
       chatHistory.push({role:'assistant',content:txt});
-      if(chatHistory.length>30)chatHistory=chatHistory.slice(-20);
+      /* 内存上下文只保留最近 20 轮，避免无限膨胀；存档不受此限制 */
+      if(chatHistory.length>40)chatHistory=chatHistory.slice(-20);
+      updateChatSaveBtn();
     }
   });
 }
@@ -2710,7 +2973,8 @@ var AI_PRESETS=[
   {n:'MiniMax',u:'https://api.minimax.chat/v1',m:''},
   {n:'阶跃星辰',u:'https://api.stepfun.com/v1',m:''},
   {n:'百度千帆',u:'https://qianfan.baidubce.com/v2',m:''},
-  {n:'Agnes',u:'https://api.agnes-ai.cn/v1',m:'agnes-3.0-flash'},
+  {n:'Agnes国际',u:'https://apihub.agnes-ai.com/v1',m:'agnes-3.0-flash'},
+  {n:'Agnes国内',u:'https://api.agnes-ai.cn/v1',m:'agnes-3.0-flash'},
   {n:'OpenAI',u:'https://api.openai.com/v1',m:''},
   {n:'Gemini',u:'https://generativelanguage.googleapis.com/v1beta/openai',m:''},
   {n:'OpenRouter',u:'https://openrouter.ai/api/v1',m:''}
@@ -2886,6 +3150,10 @@ function testAi(){
 function refreshAi(){
   try{
     var tip=document.getElementById('aiModelTip');
+    /* 聊天工具条：保存按钮按当前对话条数启用/禁用（模型未配置也要能保存已有对话） */
+    updateChatSaveBtn();
+    /* 有未恢复的草稿 → 在聊天区上方提示恢复/丢弃 */
+    try{__checkChatDraft();}catch(e){}
     if(!tip)return;
     if(!aiReady()){tip.textContent='未配置';return;}
     var c=aiCfg();
@@ -3119,6 +3387,45 @@ function normalizeBackup(d,keepAiKey,strict){
     if(d.meta.notifiedStreak&&typeof d.meta.notifiedStreak==='object')out.meta.notifiedStreak=d.meta.notifiedStreak;
     if(d.meta.lastDiag&&typeof d.meta.lastDiag==='object')out.meta.lastDiag={date:String(d.meta.lastDiag.date||'').slice(0,10),text:String(d.meta.lastDiag.text||'').slice(0,3000)};
   }
+  /* 聊天存档：白名单清洗后一并恢复，否则导入备份会把聊天记录丢掉 */
+  if(Array.isArray(d.chatLogs)){
+    out.chatLogs=d.chatLogs.slice(0,50).map(function(r){
+      if(!r||typeof r!=='object'||!Array.isArray(r.msgs))return null;
+      var msgs=r.msgs.slice(0,400).map(function(m){
+        if(!m||typeof m!=='object')return null;
+        var role=(m.role==='user'||m.role==='assistant')?m.role:null;
+        if(!role)return null;
+        return {role:role,content:String(m.content==null?'':m.content).slice(0,8000)};
+      }).filter(Boolean);
+      if(!msgs.length)return null;
+      return {
+        id:String(r.id||('c'+Math.random().toString(36).slice(2,10))).slice(0,40),
+        date:/^\d{4}-\d{2}-\d{2}$/.test(r.date||'')?r.date:'',
+        time:/^([01]\d|2[0-3]):[0-5]\d$/.test(r.time||'')?r.time:'',
+        model:String(r.model||'').slice(0,60),
+        msgs:msgs,
+        open:!!r.open
+      };
+    }).filter(Boolean);
+  }
+  /* 聊天草稿：与 chatLogs 同样清洗，否则刷新后草稿会被 load() 丢掉 */
+  if(d.chatDraft&&typeof d.chatDraft==='object'&&Array.isArray(d.chatDraft.msgs)){
+    var dmsgs=d.chatDraft.msgs.slice(0,400).map(function(m){
+      if(!m||typeof m!=='object')return null;
+      var role=(m.role==='user'||m.role==='assistant')?m.role:null;
+      if(!role)return null;
+      return {role:role,content:String(m.content==null?'':m.content).slice(0,8000)};
+    }).filter(Boolean);
+    if(dmsgs.length){
+      out.chatDraft={
+        at:Number(d.chatDraft.at)||Date.now(),
+        date:/^\d{4}-\d{2}-\d{2}$/.test(d.chatDraft.date||'')?d.chatDraft.date:'',
+        time:/^([01]\d|2[0-3]):[0-5]\d$/.test(d.chatDraft.time||'')?d.chatDraft.time:'',
+        model:String(d.chatDraft.model||'').slice(0,60),
+        msgs:dmsgs
+      };
+    }
+  }
   return out;
 }
 
@@ -3165,6 +3472,8 @@ setInterval(()=>{if(document.getElementById('page-today').classList.contains('ac
 try{renderQuickAsks();}catch(e){}
 try{refreshAi();}catch(e){}
 try{refreshRemind();}catch(e){}
+/* 聊天草稿兜底：页面隐藏/关闭时自动留底，防止忘点「新对话」丢对话 */
+try{__installChatDraftHooks();}catch(e){}
 </script>
 </body>
 </html>
