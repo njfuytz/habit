@@ -87,11 +87,22 @@
 html,body{height:100%;}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-  background:var(--coffee);color:var(--ink);line-height:1.5;overflow:hidden;
+  color:var(--ink);line-height:1.5;overflow:hidden;
   -webkit-font-smoothing:antialiased;
+  /* 兜底背景：#app 底部就是 --coffee（渐变最后一段），这里用同色纯色。
+     即使 #app 高度比屏幕矮一截，露出来的也是同色，看不出「空白」。 */
+  background:var(--coffee);
 }
 #app{
-  width:100%;max-width:500px;margin:0 auto;height:100vh;height:100dvh;position:relative;
+  width:100%;max-width:500px;margin:0 auto;
+  /* 高度三重兜底：vh → dvh → JS 实测（__lockAppHeight 写入 --app-h）。
+     iOS Safari 首次加载时 dvh 可能不含底部工具栏，单靠 CSS 会矮一截。 */
+  height:100vh;height:100dvh;
+  height:var(--app-h,100dvh);
+  /* 再兜一层：用 min-height 撑满可视高度，避免上面任一取值偏小时底部露白 */
+  min-height:100vh;min-height:100dvh;
+  min-height:var(--app-h,100dvh);
+  position:relative;
   /* 背景底色由整体主题皮肤或 --coffee 决定，不叠原 App 风格的波点 */
   background:linear-gradient(180deg,var(--coffee-d),var(--coffee) 22%,var(--coffee));
   overflow:hidden;display:flex;flex-direction:column;
@@ -2827,30 +2838,59 @@ function __installChatDraftHooks(){
   window.addEventListener('pagehide',fire);
   window.addEventListener('beforeunload',fire);
 }
-/* 视口高度守护：iOS 键盘收起后 100dvh 有时不重算，导致 #app 比屏幕矮、底部露白。
-   用 visualViewport 在键盘收起时强制重设高度，再用 rAF 复位到 CSS 值。 */
+/* 视口高度守护：iOS Safari 上 100dvh 首次加载时可能不含底部工具栏，导致 #app 矮一截、
+   底部露出 body 背景（看起来像一块空白）。这里用 JS 实测可视高度写进 --app-h，
+   比纯 CSS 的 dvh 更可靠；键盘弹起时不动，避免打字时页面跳。 */
+function __lockAppHeight(){
+  var app=document.getElementById('app');
+  if(!app)return;
+  var vv=window.visualViewport;
+  /* 优先用 innerHeight：它包含安全区，和 100vh 语义一致；
+     visualViewport.height 在 iOS 上不含底部安全区，用它反而会矮。 */
+  var h=window.innerHeight||0;
+  if(vv&&vv.height&&Math.abs(vv.height-h)>120){
+    /* 视口明显小于窗口 = 键盘弹起，保持现状别缩 */
+    return;
+  }
+  if(!h||h<200)return;
+  /* 桌面端 #app 是居中外壳（calc(100dvh - 48px)），不覆盖它的高度 */
+  if(window.matchMedia&&window.matchMedia('(min-width:600px)').matches){return;}
+  document.documentElement.style.setProperty('--app-h',Math.round(h)+'px');
+}
+/* 自检：?diag=1 时在页面顶部显示视口实测值，方便真机排查底部露白 */
+function __viewportDiag(){
+  try{
+    if(!/[?&]diag=1/.test(location.search))return;
+    var app=document.getElementById('app');
+    var tb=document.querySelector('.tabbar');
+    var box=document.createElement('div');
+    box.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99999;background:#000;color:#0f0;font:11px/1.5 monospace;padding:6px 8px;white-space:pre-wrap';
+    var vv=window.visualViewport;
+    box.textContent=
+      'innerH='+window.innerHeight+'  vvH='+(vv?Math.round(vv.height):'-')+'  vvScale='+(vv?vv.scale:'-')+'\n'+
+      'appH='+Math.round(app.getBoundingClientRect().height)+'  appBottom='+Math.round(app.getBoundingClientRect().bottom)+'\n'+
+      'tabbarBottom='+Math.round(tb.getBoundingClientRect().bottom)+'  scrollY='+window.scrollY+'\n'+
+      '--app-h='+(getComputedStyle(document.documentElement).getPropertyValue('--app-h')||'(空)')+'\n'+
+      'safeB='+getComputedStyle(document.documentElement).getPropertyValue('--safe-b');
+    document.body.appendChild(box);
+  }catch(e){}
+}
 function __installViewportGuard(){
+  try{ __lockAppHeight(); }catch(e){}
+  try{ __viewportDiag(); }catch(e){}
+  window.addEventListener('resize',function(){try{__lockAppHeight();}catch(e){}});
+  window.addEventListener('orientationchange',function(){setTimeout(function(){try{__lockAppHeight();}catch(e){}},300);});
   if(!window.visualViewport)return;
   var fix=function(){
-    var app=document.getElementById('app');
-    if(!app)return;
-    var vv=window.visualViewport;
-    /* 键盘可见时（视口明显小于窗口）不要动，避免打字时跳 */
-    var kbOpen=Math.abs(window.innerHeight-vv.height)>120;
-    if(kbOpen)return;
-    app.style.height=vv.height+'px';
-    requestAnimationFrame(function(){
-      /* 下一帧交还给 CSS 的 100dvh，保证横竖屏切换也正确 */
-      requestAnimationFrame(function(){app.style.height='';});
-    });
+    try{ __lockAppHeight(); }catch(e){}
+    /* iOS 键盘收起后偶发残留横向偏移，复位 */
+    try{
+      var kbOpen=Math.abs(window.innerHeight-window.visualViewport.height)>120;
+      if(!kbOpen&&(window.scrollX||window.scrollY))window.scrollTo(0,0);
+    }catch(e){}
   };
   window.visualViewport.addEventListener('resize',fix);
-  window.visualViewport.addEventListener('scroll',function(){
-    /* iOS 键盘收起后偶发残留横向偏移，复位 */
-    if(!window.visualViewport)return;
-    var kbOpen=Math.abs(window.innerHeight-window.visualViewport.height)>120;
-    if(!kbOpen&&(window.scrollX||window.scrollY)){try{window.scrollTo(0,0);}catch(e){}}
-  });
+  window.visualViewport.addEventListener('scroll',fix);
 }
 /* 打开 AI 页时检查有没有未恢复的草稿 */
 function __checkChatDraft(){
