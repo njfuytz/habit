@@ -408,12 +408,17 @@ body{
 /* ============ 弹层/编辑器 ============ */
 /* mask/sheet 均为 #app 的子元素，用 absolute 相对 #app 定位：
    手机端 #app 全屏 → 等同全屏弹层；桌面端 #app 是居中外壳 → 弹层自动贴外壳，不会错位 */
-.sheet-mask{position:absolute;inset:0;background:rgba(25,16,12,.55);z-index:100;opacity:0;pointer-events:none;transition:.3s;}
+.sheet-mask{position:fixed;inset:0;background:rgba(25,16,12,.55);z-index:100;opacity:0;pointer-events:none;transition:.3s;}
 .sheet-mask.show{opacity:1;pointer-events:auto;}
 .sheet{
-  position:absolute;left:0;right:0;bottom:0;background:var(--cream-soft);
+  /* 用 fixed + 视口单位定位：sheet 是 body 的直接子元素（#app 的兄弟），
+     原先 absolute + max-height:88% 的百分比基准是 body，iOS 上 body 高度算不准，
+     会导致弹层被顶到屏幕外、内容滑不动。fixed 直接锚定视口，不再依赖父元素高度。 */
+  position:fixed;left:0;right:0;bottom:0;background:var(--cream-soft);
   border-radius:var(--r) var(--r) 0 0;padding:8px 20px calc(var(--safe-b) + 24px);z-index:101;
-  transform:translateY(105%);transition:transform .34s cubic-bezier(.22,.9,.3,1);max-height:88%;overflow-y:auto;
+  transform:translateY(105%);transition:transform .34s cubic-bezier(.22,.9,.3,1);
+  max-height:88vh;max-height:88dvh;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
 }
 .sheet.show{transform:translateY(0);}
 .sheet-bar{width:40px;height:4px;border-radius:var(--rxs);background:var(--tile-3);margin:8px auto 16px;}
@@ -424,10 +429,15 @@ body{
 .field input,.field select{width:100%;padding:13px 14px;border:2px solid var(--line);border-radius:var(--rs);font-size:15px;background:#fff;color:var(--ink);font-family:inherit;}
 .field input:focus,.field select:focus{outline:none;border-color:var(--accent);}
 /* iOS Safari：输入框字号 <16px 时聚焦会自动放大整页，且 user-scalable=no / maximum-scale 在 iOS 10+ 均被忽略。
-   唯一有效做法是窄屏下把可聚焦控件提到 16px；桌面端不受影响。 */
+   唯一有效做法是窄屏下把可聚焦控件提到 16px；桌面端不受影响。
+   注意：必须覆盖内联样式写死的小字号（textarea 的 12.5px、pfEmoji 的 15px、bgHex/acHex 的 14px），
+   否则内联优先级更高，媒体查询形同虚设。 */
 @media (max-width:480px){
-  .field input,.field select,.field textarea{font-size:16px;}
+  .field input,.field select,.field textarea,
+  #cfgSysDiag,#cfgSysChat,#pfEmoji,#bgHex,#acHex{font-size:16px !important;}
 }
+/* 提示词输入框：桌面端用小一号字便于看全，窄屏由上面的媒体查询统一提到 16px */
+.cfg-ta{font-size:12.5px;}
 .opt-grid{display:flex;flex-wrap:wrap;gap:9px;}
 .icon-opt{width:46px;height:46px;border-radius:var(--rs);background:#fff;border:2px solid var(--line);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;}
 .icon-opt.sel{border-color:var(--accent);background:var(--accent-t);transform:scale(1.06);}
@@ -509,10 +519,12 @@ body{
     overflow:hidden;
   }
   .tabbar{border-radius:0 0 var(--r) var(--r);}
-  /* 弹层与遮罩挂在 #app 外面（body 下），桌面端需手动收进外壳宽度并居中，否则会撑满全屏 */
+  /* 弹层与遮罩挂在 #app 外面（body 下），桌面端需手动收进外壳宽度并居中，否则会撑满全屏。
+     桌面下 #app 是居中且带 24px 外边距的外壳，fixed 定位要扣掉这段距离才对得上外壳底边。 */
   .sheet-mask{width:430px;left:50%;transform:translateX(-50%);border-radius:var(--r);}
   .sheet{
     width:430px;left:50%;
+    bottom:calc((100dvh - min(920px, calc(100dvh - 48px))) / 2);
     transform:translateX(-50%) translateY(105%);
     border-radius:var(--r) var(--r) 0 0;
     max-height:min(760px, calc(100dvh - 100px));
@@ -2698,6 +2710,7 @@ var AI_PRESETS=[
   {n:'MiniMax',u:'https://api.minimax.chat/v1',m:''},
   {n:'阶跃星辰',u:'https://api.stepfun.com/v1',m:''},
   {n:'百度千帆',u:'https://qianfan.baidubce.com/v2',m:''},
+  {n:'Agnes',u:'https://api.agnes-ai.cn/v1',m:'agnes-3.0-flash'},
   {n:'OpenAI',u:'https://api.openai.com/v1',m:''},
   {n:'Gemini',u:'https://generativelanguage.googleapis.com/v1beta/openai',m:''},
   {n:'OpenRouter',u:'https://openrouter.ai/api/v1',m:''}
@@ -2712,18 +2725,18 @@ function openAiCfg(){
   '</div></div>'+
   '<div class="field"><label>接口地址（Base URL）</label><input id="cfgUrl" type="text" placeholder="https://api.deepseek.com" value="'+escAttr(c.baseUrl)+'"></div>'+
   '<div class="field"><label>模型名</label>'+
-    '<div style="display:flex;gap:8px;align-items:stretch">'+
+    '<div style="display:flex;gap:10px;align-items:stretch">'+
       '<input id="cfgModel" type="text" placeholder="deepseek-flash" value="'+escAttr(c.model)+'" style="flex:1;min-width:0">'+
-      '<div class="rc" id="cfgFetchBtn" onclick="fetchModels()" style="flex:0 0 auto;display:flex;align-items:center;padding:0 14px;border:2px solid var(--line);border-radius:var(--rs);background:var(--tile-2);font-size:13px;font-weight:800;white-space:nowrap">拉取</div>'+
+      '<button type="button" id="cfgFetchBtn" onclick="fetchModels()" style="flex:0 0 auto;padding:0 16px;border:2px solid var(--line);border-radius:var(--rs);background:var(--tile-2);color:var(--ink-soft);font-size:13px;font-weight:800;white-space:nowrap;font-family:inherit;cursor:pointer;-webkit-appearance:none">拉取</button>'+
     '</div>'+
     '<div id="cfgModelList" style="display:none;margin-top:8px;max-height:190px;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--tile-3);border-radius:var(--rs);background:var(--cream-soft);padding:6px"></div>'+
     '<div id="cfgModelTip" style="font-size:11.5px;color:var(--ink-mute);margin-top:6px;line-height:1.6">填好接口地址和 Key 后点「拉取」，就能看到这家服务商当前真实的模型名，点一下直接填入。拉不到就手动填。</div></div>'+
   '<div class="field"><label>API Key</label><input id="cfgKey" type="password" placeholder="sk-..." value="'+escAttr(c.key)+'"></div>'+
   '<div class="field"><label>额外人设（可选）</label><input id="cfgPersona" type="text" placeholder="如：说话毒舌一点 / 多鼓励我" value="'+escAttr(c.persona)+'">'+
     '<div class="sub" style="font-size:11.5px;color:var(--ink-mute);margin-top:6px;line-height:1.6">只是追加在提示词末尾，会被内置要求冲淡。想改内置说法，用下面两个框。</div></div>'+
-  '<div class="field"><label>诊断提示词（AI 每日分析用）</label><textarea id="cfgSysDiag" style="width:100%;min-height:150px;box-sizing:border-box;border-radius:var(--rs);border:var(--bw) solid var(--bc);background:var(--cream-soft);color:var(--ink);padding:10px 11px;font-size:12.5px;line-height:1.65;font-family:inherit;resize:vertical">'+escAttr(c.sysDiag||AI_SYS_DIAG)+'</textarea>'+
+  '<div class="field"><label>诊断提示词（AI 每日分析用）</label><textarea id="cfgSysDiag" class="cfg-ta" style="width:100%;min-height:150px;box-sizing:border-box;border-radius:var(--rs);border:var(--bw) solid var(--bc);background:var(--cream-soft);color:var(--ink);padding:10px 11px;line-height:1.65;font-family:inherit;resize:vertical">'+escAttr(c.sysDiag||AI_SYS_DIAG)+'</textarea>'+
     '<div class="repeat-chips" style="margin-top:8px"><div class="rc" onclick="resetSysPrompt(\'diag\')">恢复默认</div></div></div>'+
-  '<div class="field"><label>聊天提示词（AI 助手用）</label><textarea id="cfgSysChat" style="width:100%;min-height:150px;box-sizing:border-box;border-radius:var(--rs);border:var(--bw) solid var(--bc);background:var(--cream-soft);color:var(--ink);padding:10px 11px;font-size:12.5px;line-height:1.65;font-family:inherit;resize:vertical">'+escAttr(c.sysChat||AI_SYS_CHAT)+'</textarea>'+
+  '<div class="field"><label>聊天提示词（AI 助手用）</label><textarea id="cfgSysChat" class="cfg-ta" style="width:100%;min-height:150px;box-sizing:border-box;border-radius:var(--rs);border:var(--bw) solid var(--bc);background:var(--cream-soft);color:var(--ink);padding:10px 11px;line-height:1.65;font-family:inherit;resize:vertical">'+escAttr(c.sysChat||AI_SYS_CHAT)+'</textarea>'+
     '<div class="repeat-chips" style="margin-top:8px"><div class="rc" onclick="resetSysPrompt(\'chat\')">恢复默认</div></div>'+
     '<div class="sub" style="font-size:11.5px;color:var(--ink-mute);margin-top:6px;line-height:1.6">框里就是当前生效的原文，改几个字就行，不用整段重写。打卡数据会自动附在后面，不用你写。</div></div>'+
   '<button class="export-ics-btn" style="margin-top:6px" onclick="saveAiCfgFromForm()">保存</button>'+
