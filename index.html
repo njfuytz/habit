@@ -2516,8 +2516,25 @@ function clearSample(){
 
 /* ============ 弹层控制 ============ */
 var lastFocus=null;
-function openSheet(id){lastFocus=document.activeElement;document.getElementById('mask').classList.add('show');var sh=document.getElementById(id);sh.classList.add('show');sh.setAttribute('role','dialog');sh.setAttribute('aria-modal','true');enhanceA11y();setTimeout(function(){var f=sh.querySelector('input:not([type="hidden"]),textarea,button,[role="button"]');if(f)f.focus();},30);}
-function closeSheet(){document.getElementById('mask').classList.remove('show');document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'));if(lastFocus&&lastFocus.focus)lastFocus.focus();lastFocus=null;}
+function openSheet(id){lastFocus=document.activeElement;document.getElementById('mask').classList.add('show');var sh=document.getElementById(id);sh.classList.add('show');sh.setAttribute('role','dialog');sh.setAttribute('aria-modal','true');enhanceA11y();
+  /* 移动端不自动聚焦，避免弹键盘引发缩放/滚动错位（详见 openGenericSheet 注释） */
+  if(!(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)){
+    setTimeout(function(){var f=sh.querySelector('input:not([type="hidden"]),textarea,button,[role="button"]');if(f)f.focus();},30);
+  }
+}
+/* 关闭弹层：先让当前输入框失焦（iOS 上这是收起键盘、恢复视口的关键一步），再复位滚动 */
+function closeSheet(){
+  try{
+    var ae=document.activeElement;
+    if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'||ae.isContentEditable))ae.blur();
+  }catch(e){}
+  document.getElementById('mask').classList.remove('show');
+  document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'));
+  /* iOS 上弹层+键盘会让 window 产生残留滚动，复位一下避免底部露白 */
+  try{ if(window.scrollY||window.scrollX)window.scrollTo(0,0); }catch(e){}
+  if(lastFocus&&lastFocus.focus)lastFocus.focus();
+  lastFocus=null;
+}
 
 /* ============ toast + 保存标记 ============ */
 let savedTimer=null;
@@ -2809,6 +2826,31 @@ function __installChatDraftHooks(){
   });
   window.addEventListener('pagehide',fire);
   window.addEventListener('beforeunload',fire);
+}
+/* 视口高度守护：iOS 键盘收起后 100dvh 有时不重算，导致 #app 比屏幕矮、底部露白。
+   用 visualViewport 在键盘收起时强制重设高度，再用 rAF 复位到 CSS 值。 */
+function __installViewportGuard(){
+  if(!window.visualViewport)return;
+  var fix=function(){
+    var app=document.getElementById('app');
+    if(!app)return;
+    var vv=window.visualViewport;
+    /* 键盘可见时（视口明显小于窗口）不要动，避免打字时跳 */
+    var kbOpen=Math.abs(window.innerHeight-vv.height)>120;
+    if(kbOpen)return;
+    app.style.height=vv.height+'px';
+    requestAnimationFrame(function(){
+      /* 下一帧交还给 CSS 的 100dvh，保证横竖屏切换也正确 */
+      requestAnimationFrame(function(){app.style.height='';});
+    });
+  };
+  window.visualViewport.addEventListener('resize',fix);
+  window.visualViewport.addEventListener('scroll',function(){
+    /* iOS 键盘收起后偶发残留横向偏移，复位 */
+    if(!window.visualViewport)return;
+    var kbOpen=Math.abs(window.innerHeight-window.visualViewport.height)>120;
+    if(!kbOpen&&(window.scrollX||window.scrollY)){try{window.scrollTo(0,0);}catch(e){}}
+  });
 }
 /* 打开 AI 页时检查有没有未恢复的草稿 */
 function __checkChatDraft(){
@@ -3552,7 +3594,12 @@ function openGenericSheet(innerHtml){
   sh.classList.add('show');
   sh.setAttribute('role','dialog');sh.setAttribute('aria-modal','true');
   enhanceA11y();
-  setTimeout(function(){var f=sh.querySelector('input,textarea,button,[role="button"]');if(f)f.focus();},30);
+  /* 桌面端：自动聚焦第一个控件，方便键盘操作。
+     移动端不自动聚焦 —— iOS 上一打开弹层就聚焦输入框会立刻弹键盘、触发页面缩放和滚动，
+     关掉弹层后视口不一定复位，表现为底部露出空白/布局错位。 */
+  if(!(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)){
+    setTimeout(function(){var f=sh.querySelector('input,textarea,button,[role="button"]');if(f)f.focus();},30);
+  }
 }
 
 function enhanceA11y(){
@@ -3583,6 +3630,8 @@ try{refreshAi();}catch(e){}
 try{refreshRemind();}catch(e){}
 /* 聊天草稿兜底：页面隐藏/关闭时自动留底，防止忘点「新对话」丢对话 */
 try{__installChatDraftHooks();}catch(e){}
+/* 视口高度守护：防止 iOS 键盘收起后底部露白 */
+try{__installViewportGuard();}catch(e){}
 </script>
 </body>
 </html>
