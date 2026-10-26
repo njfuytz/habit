@@ -423,6 +423,11 @@ body{
 .field label{font-size:12px;font-weight:800;color:var(--ink-soft);display:block;margin-bottom:8px;letter-spacing:.5px;}
 .field input,.field select{width:100%;padding:13px 14px;border:2px solid var(--line);border-radius:var(--rs);font-size:15px;background:#fff;color:var(--ink);font-family:inherit;}
 .field input:focus,.field select:focus{outline:none;border-color:var(--accent);}
+/* iOS Safari：输入框字号 <16px 时聚焦会自动放大整页，且 user-scalable=no / maximum-scale 在 iOS 10+ 均被忽略。
+   唯一有效做法是窄屏下把可聚焦控件提到 16px；桌面端不受影响。 */
+@media (max-width:480px){
+  .field input,.field select,.field textarea{font-size:16px;}
+}
 .opt-grid{display:flex;flex-wrap:wrap;gap:9px;}
 .icon-opt{width:46px;height:46px;border-radius:var(--rs);background:#fff;border:2px solid var(--line);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;}
 .icon-opt.sel{border-color:var(--accent);background:var(--accent-t);transform:scale(1.06);}
@@ -2521,7 +2526,7 @@ var AI_SYS_DIAG='你是一个温和但直接的私人习惯教练。用户会给
 var AI_SYS_CHAT='你是用户的私人习惯助手，说话温和、直接、简短（一般不超过200字），用中文口语回答，不要用markdown符号，不要emoji。'+
   '你可以看到他全部的习惯打卡数据。回答时尽量引用具体数字，给的建议要具体可执行。'+
   '如果用户问的跟习惯无关，也可以正常回答，但尽量联系到他的习惯上来。';
-var AI_DEF={baseUrl:'https://api.deepseek.com',model:'deepseek-chat',key:'',persona:'',sysDiag:'',sysChat:''};
+var AI_DEF={baseUrl:'https://api.deepseek.com',model:'deepseek-flash',key:'',persona:'',sysDiag:'',sysChat:''};
 function aiCfg(){
   var c={};
   try{
@@ -2589,8 +2594,14 @@ function aiChat(messages,sysPrompt,cb){
       }catch(e){cb(new Error('返回内容解析失败：'+e.message),null);}
     }else{
       var msg='HTTP '+xhr.status;
-      try{var e2=JSON.parse(xhr.responseText);if(e2.error&&e2.error.message)msg+=' — '+e2.error.message;}catch(e){}
+      var raw='';
+      try{raw=xhr.responseText;}catch(e){}
+      try{var e2=JSON.parse(raw);if(e2.error&&e2.error.message)msg+=' — '+e2.error.message;}catch(e){}
       if(xhr.status===401)msg+='（key 可能不对，检查「配置」）';
+      /* 模型名错时服务商返回的文案五花八门，统一认这几个关键词 */
+      if(/model|模型/i.test(raw)&&/not\s*exist|not\s*found|invalid|unknown|不存在|无效|不存在该/i.test(raw)){
+        msg+='\n→ 这多半是模型名不对。回「配置」点「拉取」，选一个列表里真实存在的模型名。';
+      }
       cb(new Error(msg),null);
     }
   };
@@ -2677,12 +2688,19 @@ function sendChat(){
 }
 
 /* ---------- AI 配置弹层 ---------- */
+/* 预设只保证 Base URL 稳定；模型名优先靠「拉取列表」实时获取，m 仅作离线兜底。
+   预设是快捷填充，删掉某个不影响手动填地址使用。 */
 var AI_PRESETS=[
-  {n:'DeepSeek',u:'https://api.deepseek.com',m:'deepseek-chat'},
-  {n:'Kimi',u:'https://api.moonshot.cn/v1',m:'moonshot-v1-8k'},
-  {n:'通义千问',u:'https://dashscope.aliyuncs.com/compatible-mode/v1',m:'qwen-plus'},
-  {n:'硅基流动',u:'https://api.siliconflow.cn/v1',m:'deepseek-ai/DeepSeek-V3'},
-  {n:'智谱GLM',u:'https://open.bigmodel.cn/api/paas/v4',m:'glm-4-flash'}
+  {n:'DeepSeek',u:'https://api.deepseek.com',m:'deepseek-flash'},
+  {n:'Kimi',u:'https://api.moonshot.cn/v1',m:'kimi-k3.1-pro'},
+  {n:'通义千问',u:'https://dashscope.aliyuncs.com/compatible-mode/v1',m:'qwen3.8-max'},
+  {n:'智谱GLM',u:'https://open.bigmodel.cn/api/paas/v4',m:'GLM-5.3'},
+  {n:'MiniMax',u:'https://api.minimax.chat/v1',m:''},
+  {n:'阶跃星辰',u:'https://api.stepfun.com/v1',m:''},
+  {n:'百度千帆',u:'https://qianfan.baidubce.com/v2',m:''},
+  {n:'OpenAI',u:'https://api.openai.com/v1',m:''},
+  {n:'Gemini',u:'https://generativelanguage.googleapis.com/v1beta/openai',m:''},
+  {n:'OpenRouter',u:'https://openrouter.ai/api/v1',m:''}
 ];
 function openAiCfg(){
   var c=aiCfg();
@@ -2693,7 +2711,13 @@ function openAiCfg(){
     AI_PRESETS.map(function(p,i){return '<div class="rc" onclick="pickPreset('+i+')">'+p.n+'</div>';}).join('')+
   '</div></div>'+
   '<div class="field"><label>接口地址（Base URL）</label><input id="cfgUrl" type="text" placeholder="https://api.deepseek.com" value="'+escAttr(c.baseUrl)+'"></div>'+
-  '<div class="field"><label>模型名</label><input id="cfgModel" type="text" placeholder="deepseek-chat" value="'+escAttr(c.model)+'"></div>'+
+  '<div class="field"><label>模型名</label>'+
+    '<div style="display:flex;gap:8px;align-items:stretch">'+
+      '<input id="cfgModel" type="text" placeholder="deepseek-flash" value="'+escAttr(c.model)+'" style="flex:1;min-width:0">'+
+      '<div class="rc" id="cfgFetchBtn" onclick="fetchModels()" style="flex:0 0 auto;display:flex;align-items:center;padding:0 14px;border:2px solid var(--line);border-radius:var(--rs);background:var(--tile-2);font-size:13px;font-weight:800;white-space:nowrap">拉取</div>'+
+    '</div>'+
+    '<div id="cfgModelList" style="display:none;margin-top:8px;max-height:190px;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--tile-3);border-radius:var(--rs);background:var(--cream-soft);padding:6px"></div>'+
+    '<div id="cfgModelTip" style="font-size:11.5px;color:var(--ink-mute);margin-top:6px;line-height:1.6">填好接口地址和 Key 后点「拉取」，就能看到这家服务商当前真实的模型名，点一下直接填入。拉不到就手动填。</div></div>'+
   '<div class="field"><label>API Key</label><input id="cfgKey" type="password" placeholder="sk-..." value="'+escAttr(c.key)+'"></div>'+
   '<div class="field"><label>额外人设（可选）</label><input id="cfgPersona" type="text" placeholder="如：说话毒舌一点 / 多鼓励我" value="'+escAttr(c.persona)+'">'+
     '<div class="sub" style="font-size:11.5px;color:var(--ink-mute);margin-top:6px;line-height:1.6">只是追加在提示词末尾，会被内置要求冲淡。想改内置说法，用下面两个框。</div></div>'+
@@ -2718,7 +2742,100 @@ function escAttr(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/"
 function pickPreset(i){
   var p=AI_PRESETS[i];
   document.getElementById('cfgUrl').value=p.u;
-  document.getElementById('cfgModel').value=p.m;
+  /* 有兜底模型名就填；没有则清空，引导用户点「拉取」拿真实名，避免填一个过期的 */
+  document.getElementById('cfgModel').value=p.m||'';
+  var list=document.getElementById('cfgModelList');
+  if(list){list.style.display='none';list.innerHTML='';}
+  var tip=document.getElementById('cfgModelTip');
+  if(tip){
+    tip.style.color='var(--ink-mute)';
+    tip.textContent=p.m?'已填入兜底模型名（可能不是最新），建议点「拉取」核对这家当前真实的模型名。'
+                      :'这家没有兜底模型名，填好 Key 后点「拉取」，或手动填写。';
+  }
+}
+/* ---------- 拉取模型列表（GET {BaseURL}/models，OpenAI 兼容协议） ---------- */
+var __fetchModelsBusy=false;
+function __modelsEndpoint(baseUrl){
+  var b=String(baseUrl||'').trim().replace(/\/+$/,'');
+  if(!b)return '';
+  /* 已经以 /v1 或 /v2 结尾就别重复拼；OpenAI 兼容服务商大多挂在 /v1 下 */
+  return b+'/models';
+}
+function fetchModels(){
+  if(__fetchModelsBusy)return;
+  var base=(document.getElementById('cfgUrl').value||'').trim();
+  var key=(document.getElementById('cfgKey').value||'').trim();
+  var btn=document.getElementById('cfgFetchBtn');
+  var list=document.getElementById('cfgModelList');
+  var tip=document.getElementById('cfgModelTip');
+  if(!tip||!list||!btn)return;
+  function say(msg,color){tip.style.color=color||'var(--ink-mute)';tip.textContent=msg;}
+  if(!base){say('先填接口地址（Base URL）','var(--rose)');return;}
+  if(!key){say('先填 API Key —— 没有 Key 服务商会拒绝，拉不到列表','var(--rose)');return;}
+  try{
+    var u=new URL(base);
+    if(u.protocol!=='https:'&&u.hostname!=='localhost'&&u.hostname!=='127.0.0.1')throw new Error('bad');
+  }catch(e){say('接口地址不是有效的 HTTPS 地址','var(--rose)');return;}
+  var url=__modelsEndpoint(base);
+  __fetchModelsBusy=true;
+  btn.textContent='拉取中';
+  list.style.display='none';list.innerHTML='';
+  say('正在向 '+url+' 请求模型列表…','var(--ink-mute)');
+  var xhr=new XMLHttpRequest();
+  xhr.open('GET',url,true);
+  xhr.setRequestHeader('Authorization','Bearer '+key);
+  xhr.timeout=15000;
+  xhr.onload=function(){
+    __fetchModelsBusy=false;btn.textContent='拉取';
+    if(xhr.status>=200&&xhr.status<300){
+      var arr=null;
+      try{
+        var r=JSON.parse(xhr.responseText);
+        if(Array.isArray(r))arr=r;
+        else if(r&&Array.isArray(r.data))arr=r.data;
+        else if(r&&Array.isArray(r.models))arr=r.models;
+      }catch(e){}
+      if(!arr){say('这家返回的不是标准模型列表，手动填模型名吧','var(--rose)');return;}
+      var ids=[];
+      for(var i=0;i<arr.length;i++){
+        var it=arr[i];
+        var id=(typeof it==='string')?it:(it&&(it.id||it.model||it.name));
+        if(id&&ids.indexOf(id)<0)ids.push(String(id));
+      }
+      if(!ids.length){say('列表是空的，这家可能不开放模型查询，手动填吧','var(--rose)');return;}
+      ids.sort();
+      list.innerHTML=ids.map(function(id){
+        return '<div class="rc" style="display:block;margin:3px 0;text-align:left;font-size:12.5px;word-break:break-all" '+
+               'onclick="__pickModel(\''+String(id).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'+escAttr(id)+'</div>';
+      }).join('');
+      list.style.display='block';
+      say('拉到 '+ids.length+' 个模型，点一个填入；也可以继续手动改','var(--sage)');
+    }else if(xhr.status===401||xhr.status===403){
+      say('HTTP '+xhr.status+'：Key 不对或没有权限。先确认 Key 填对、并且是这家的','var(--rose)');
+    }else if(xhr.status===404){
+      say('HTTP 404：这个地址下没有 /models 接口，可能 Base URL 少了 /v1 之类的后缀，手动填吧','var(--rose)');
+    }else{
+      var m='HTTP '+xhr.status;
+      try{var e2=JSON.parse(xhr.responseText);var em=(e2&&(e2.error&&(e2.error.message||e2.error))||e2.message);if(em)m+=' — '+String(em).slice(0,120);}catch(e){}
+      say(m,'var(--rose)');
+    }
+  };
+  xhr.onerror=function(){
+    __fetchModelsBusy=false;btn.textContent='拉取';
+    /* 浏览器对 CORS 失败和断网给的都是同一个 error，这里如实说明，别误导成 Key 错 */
+    say('请求被拦下了。可能是：① 这家没开放跨域（浏览器直连拿不到，只能手动填）；② 地址写错；③ 没联网。Key 本身不一定是错的','var(--rose)');
+  };
+  xhr.ontimeout=function(){
+    __fetchModelsBusy=false;btn.textContent='拉取';
+    say('请求超时，检查网络或换个地址','var(--rose)');
+  };
+  xhr.send();
+}
+function __pickModel(id){
+  var el=document.getElementById('cfgModel');
+  if(el)el.value=id;
+  var tip=document.getElementById('cfgModelTip');
+  if(tip){tip.style.color='var(--sage)';tip.textContent='已填入：'+id;}
 }
 function saveAiCfgFromForm(){
   var o={baseUrl:(document.getElementById('cfgUrl').value||'').trim(),
