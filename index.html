@@ -571,6 +571,9 @@ body{
 .chat-tool-btn:active{transform:scale(.97)}
 .chat-tool-btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .chat-tool-btn:disabled{opacity:.45;cursor:default}
+/* 历史记录条目：整块可点，进详情 */
+.chat-log-item{background:var(--tile-2);border:1px solid var(--tile-3);border-radius:var(--rs);padding:12px 14px;cursor:pointer;transition:.15s}
+.chat-log-item:active{transform:scale(.99);background:var(--tile)}
 
 .remind-tip{font-size:12.5px;line-height:1.8;color:var(--ink-soft);background:var(--gold-t);border:1px solid var(--gold);border-radius:var(--rs);padding:11px 13px;margin-bottom:12px}
 .remind-tip b{color:var(--ink)}
@@ -2881,26 +2884,60 @@ function toggleChatSave(){
 function openChatArchive(){
   var logs=chatLogs().slice().reverse();
   var html='<h3 style="margin:0 0 4px">聊天记录</h3>'+
-    '<div class="sub" style="font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;line-height:1.7">点「继续」把某天的对话接回来接着聊；「删除」只删存档，不影响打卡数据。</div>';
+    '<div class="sub" style="font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;line-height:1.7">点条目看完整内容；「继续」把它接回来接着聊；「删除」只删存档，不影响打卡数据。</div>';
   if(!logs.length){
     html+='<div style="text-align:center;color:var(--ink-mute);font-size:13px;padding:28px 0">还没有保存过对话。<br>聊完之后点「保存」就会出现在这里。</div>';
   }else{
     html+='<div style="display:flex;flex-direction:column;gap:10px">'+logs.map(function(r){
       var idx=data.chatLogs.indexOf(r);
-      var preview=(r.msgs&&r.msgs.length?r.msgs[0].content:'').slice(0,40);
-      return '<div class="card" style="padding:12px 14px">'+
+      var msgs=Array.isArray(r.msgs)?r.msgs:[];
+      /* 列表里给两行预览：第一句用户提问 + 最后一句 AI 回答，比只看开头有信息量 */
+      var firstUser='',lastAi='';
+      for(var i=0;i<msgs.length;i++){ if(msgs[i].role==='user'){firstUser=msgs[i].content;break;} }
+      for(var j=msgs.length-1;j>=0;j--){ if(msgs[j].role==='assistant'){lastAi=msgs[j].content;break;} }
+      var clip=function(s,n){s=String(s||'').replace(/\s+/g,' ');return s.length>n?(s.slice(0,n)+'…'):s;};
+      return '<div class="chat-log-item" onclick="openChatLogDetail('+idx+')">'+
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
           '<b style="font-size:13px;color:var(--ink)">'+escAttr(r.date)+' '+escAttr(r.time||'')+'</b>'+
-          '<span style="font-size:11px;color:var(--ink-mute)">'+(r.msgs?r.msgs.length:0)+' 条'+(r.model?(' · '+escAttr(String(r.model).slice(0,24))):'')+'</span>'+
+          '<span style="font-size:11px;color:var(--ink-mute)">'+msgs.length+' 条'+(r.model?(' · '+escAttr(String(r.model).slice(0,24))):'')+'</span>'+
+          '<span style="margin-left:auto;font-size:11px;color:var(--ink-mute)">›</span>'+
         '</div>'+
-        '<div style="font-size:12px;color:var(--ink-soft);line-height:1.6;margin-bottom:10px;word-break:break-all">'+escAttr(preview)+(preview.length>=40?'…':'')+'</div>'+
-        '<div style="display:flex;gap:8px">'+
+        (firstUser?'<div style="font-size:12px;color:var(--ink);line-height:1.6;margin-bottom:4px;word-break:break-all">问：'+escAttr(clip(firstUser,46))+'</div>':'')+
+        (lastAi?'<div style="font-size:11.5px;color:var(--ink-soft);line-height:1.6;margin-bottom:10px;word-break:break-all">答：'+escAttr(clip(lastAi,46))+'</div>':'<div style="margin-bottom:10px"></div>')+
+        '<div style="display:flex;gap:8px" onclick="event.stopPropagation()">'+
+          '<button type="button" class="chat-tool-btn" onclick="openChatLogDetail('+idx+')">查看</button>'+
           '<button type="button" class="chat-tool-btn" onclick="resumeChat('+idx+')">继续</button>'+
           '<button type="button" class="chat-tool-btn" onclick="delChatLog('+idx+')">删除</button>'+
         '</div>'+
       '</div>';
     }).join('')+'</div>';
   }
+  openGenericSheet(html);
+}
+/* 单条存档详情：完整问答，可从这里继续或删除 */
+function openChatLogDetail(idx){
+  var logs=chatLogs();
+  var r=logs[idx];
+  if(!r){openChatArchive();return;}
+  var msgs=Array.isArray(r.msgs)?r.msgs:[];
+  var body=msgs.map(function(m){
+    var isUser=m.role==='user';
+    return '<div style="display:flex;justify-content:'+(isUser?'flex-end':'flex-start')+';margin-bottom:10px">'+
+      '<div style="max-width:86%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.65;word-break:break-word;white-space:pre-wrap;'+
+        (isUser?'background:var(--accent);color:#fff;border-bottom-right-radius:4px':'background:var(--tile-2);color:var(--ink);border:1px solid var(--tile-3);border-bottom-left-radius:4px')+'">'+
+        escAttr(m.content)+
+      '</div></div>';
+  }).join('');
+  var html='<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">'+
+      '<div class="chat-tool-btn" style="padding:4px 10px" onclick="openChatArchive()">‹ 返回</div>'+
+      '<h3 style="margin:0;font-size:16px">'+escAttr(r.date)+' '+escAttr(r.time||'')+'</h3>'+
+    '</div>'+
+    '<div class="sub" style="font-size:12px;color:var(--ink-soft);margin-bottom:14px">'+msgs.length+' 条'+(r.model?(' · '+escAttr(String(r.model))):'')+'</div>'+
+    '<div style="max-height:52vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px 0">'+body+'</div>'+
+    '<div style="display:flex;gap:8px;margin-top:14px">'+
+      '<button type="button" class="chat-tool-btn" onclick="resumeChat('+idx+')">继续这段对话</button>'+
+      '<button type="button" class="chat-tool-btn" onclick="delChatLog('+idx+')">删除</button>'+
+    '</div>';
   openGenericSheet(html);
 }
 /* 接回某段存档：把它载入当前对话，可继续追问 */
@@ -2925,7 +2962,7 @@ function delChatLog(idx){
   if(!confirm('删除这条聊天记录？删了找不回来。'))return;
   logs.splice(idx,1);
   __saveChatData();
-  closeSheet();
+  /* 不关弹层直接重绘列表，避免「关闭→重开」的动画闪烁 */
   openChatArchive();
   toast('已删除','good');
 }
